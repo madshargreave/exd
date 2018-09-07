@@ -3,6 +3,7 @@ defmodule Exd.Query do
   Defines the Query data structure and provides the Query DSL.
   """
   alias Exd.Query.Builder
+  alias Exd.Query.Validator
 
   defstruct materialize: nil,
             from: nil,
@@ -35,5 +36,6 @@ defmodule Exd.Query do
   defdelegate new(), to: Builder
   defdelegate from(query, name, source), to: Builder
   defdelegate where(query, field, relation, value), to: Builder
+  defdelegate validate(queryable), to: Validator
 
 end

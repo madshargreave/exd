@@ -5,7 +5,11 @@ defmodule Exd.MixProject do
     [
       app: :exd,
       version: "0.1.0",
-      elixir: "~> 1.6",
+      elixir: "~> 1.7",
+      description: description(),
+      package: package(),
+      name: "Exd",
+      source_url: "https://github.com/madshargreave/exd",
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -18,8 +22,8 @@ defmodule Exd.MixProject do
     ]
   end
 
-  defp elixirc_paths(:test), do: ["lib", "test/support"]
-  defp elixirc_paths(_), do: ["lib"]
+  def elixirc_paths(:test), do: ["lib", "test/support"]
+  def elixirc_paths(_), do: ["lib"]
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
@@ -29,7 +33,24 @@ defmodule Exd.MixProject do
       {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false},
       {:mustache, "~> 0.3.0"},
       {:httpoison, "~> 1.0"},
-      {:floki, "~> 0.20.0"}
+      {:floki, "~> 0.20.0"},
+      {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
+
+  defp description() do
+    "A few sentences (a paragraph) describing the project."
+  end
+
+  defp package() do
+    [
+      # This option is only needed when you don't want to use the OTP application name
+      name: "exd",
+      # These are the default files included in the package
+      files: ~w(lib .formatter.exs mix.exs README*),
+      licenses: ["Apache 2.0"],
+      links: %{"GitHub" => "https://github.com/madshargreave/exd"}
+    ]
+  end
+
 end

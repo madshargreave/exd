@@ -2,6 +2,8 @@ defmodule Exd.Query do
   @moduledoc """
   Defines the Query data structure and provides the Query DSL.
   """
+  alias Exd.Query.Builder
+
   defstruct materialize: nil,
             from: nil,
             joins: [],
@@ -29,5 +31,9 @@ defmodule Exd.Query do
 
   @typedoc "Select expression"
   @type select_expr :: map()
+
+  defdelegate new(), to: Builder
+  defdelegate from(query, name, source), to: Builder
+  defdelegate where(query, field, relation, value), to: Builder
 
 end

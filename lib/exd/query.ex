@@ -36,6 +36,7 @@ defmodule Exd.Query do
   defdelegate new(), to: Builder
   defdelegate from(query, name, source), to: Builder
   defdelegate where(query, field, relation, value), to: Builder
+  defdelegate select(query, selection), to: Builder
   defdelegate validate(queryable), to: Validator
 
 end

@@ -19,46 +19,37 @@ defmodule Exd.Source.List do
           }
       end
   """
-  use Exd.Adapter
+  use Exd.Source.Adapter
 
   defstruct [
     list: nil,
     cursor: %{limit: 10}
   ]
 
-  @type t :: %__MODULE__{}
-
   @doc """
   The list itself is the state of the source
   """
   @impl true
-  def init(context, opts) do
-    list = Keyword.fetch!(opts, :value)
-    state = %__MODULE__{list: list}
-    {:ok, state}
+  def init([{:value, list} | _rest]) do
+    {
+      :ok,
+      %__MODULE__{
+        list: list
+      }
+    }
   end
 
   @doc """
-  Paginates the last
+  handle_paginates the last
   """
   @impl true
-  def paginate(state) do
+  def handle_from(demand, state) do
     case Enum.split(state.list, state.cursor.limit) do
       {[], _} ->
         :done
       {produced, remaining} ->
-        # :timer.sleep(500)
         {:ok, produced, %__MODULE__{state | list: remaining}}
     end
-  end
-
-  @doc """
-  Inserts documents into list
-  """
-  @impl true
-  def insert(document, state) do
-    new_state = %__MODULE__{state | list: [document | state.list]}
-    {:ok, new_state}
   end
 
 end

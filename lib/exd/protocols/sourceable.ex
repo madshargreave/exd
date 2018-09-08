@@ -20,8 +20,12 @@ end
 defimpl Exd.Sourceable, for: Tuple do
   def source({module, args} = spec, context) when is_atom(module) do
     opts = [stages: 1, max_demand: 1]
-    specs =  [%{start: {module, :start_link, [[], args]}}]
+    args = Keyword.put(args, :adapter, {module, args})
+    specs =  [%{start: {Exd.Source, :start_link, [args]}}]
     Flow.from_specs(specs, opts)
+  end
+  def into({sink, args}, context) when is_atom(sink) do
+    apply(sink, :handle_into, [context])
   end
 end
 

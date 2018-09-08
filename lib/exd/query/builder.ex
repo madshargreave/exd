@@ -37,4 +37,12 @@ defmodule Exd.Query.Builder do
     %Query{query | select: selection}
   end
 
+  @doc """
+  Set the select clause for query
+  """
+  @spec into(Query.t, term, keyword) :: Query.t
+  def into(query, sink, opts \\ []) do
+    %Query{query | into: {sink, opts}}
+  end
+
 end

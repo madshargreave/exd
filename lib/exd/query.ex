@@ -2,6 +2,7 @@ defmodule Exd.Query do
   @moduledoc """
   Defines the Query data structure and provides the Query DSL.
   """
+  alias Exd.Query
   alias Exd.Query.Builder
   alias Exd.Query.Validator
 
@@ -34,9 +35,10 @@ defmodule Exd.Query do
   @type select_expr :: map()
 
   defdelegate new(), to: Builder
-  defdelegate from(query, name, source), to: Builder
+  defdelegate from(query \\ %Query{}, name, source), to: Builder
   defdelegate where(query, field, relation, value), to: Builder
   defdelegate select(query, selection), to: Builder
+  defdelegate into(query, sink, opts \\ []), to: Builder
   defdelegate validate(queryable), to: Validator
 
 end

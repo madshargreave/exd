@@ -52,34 +52,6 @@ defmodule Exd.QueryRunnerTest do
         |> Enum.sort
     end
 
-    defmodule TestSource do
-      use Exd.Source,
-        provider: {Exd.Source.List, value: [1, 2, 3]}
-    end
-
-    test "it works with source modules" do
-      query = %Query{from: {"numbers", TestSource}}
-
-      assert [1, 2, 3] ==
-        query
-        |> QueryRunner.stream
-        |> Enum.sort
-    end
-
-    defmodule AnyModule do
-
-    end
-
-    test "it throws on module without implementation" do
-      query = %Query{from: {"numbers", AnyModule}}
-
-      assert_raise Protocol.UndefinedError, fn ->
-        query
-        |> QueryRunner.stream
-        |> Enum.sort
-      end
-    end
-
     test "it works with subqueries" do
       even = %Query{from: {"even", [2, 4, 6]}}
       odd = %Query{from: {"odd", [1, 3, 5]}}
@@ -159,11 +131,6 @@ defmodule Exd.QueryRunnerTest do
 
     assert_receive {:received, {"mads", "denmark"}}
     assert_receive {:received, {"jack", "denmark"}}
-  end
-
-  defmodule AnotherEmptyTestSource do
-    use Exd.Source,
-      provider: {Exd.Source.List, value: [1, 2, 3]}
   end
 
   test "it works when filtering on a joined value" do

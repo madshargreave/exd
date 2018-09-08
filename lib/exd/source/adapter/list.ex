@@ -5,19 +5,6 @@ defmodule Exd.Source.List do
   ## Options
 
     * `:value` - The list itself
-
-  ## Usage
-
-      defmodule MyFile do
-        use Exd.Source,
-          adapter: {
-            Exd.Source.List,
-              value: [
-                %{"name" => "mads"},
-                %{"name" => "jack"}
-              ]
-          }
-      end
   """
   use Exd.Source.Adapter
 

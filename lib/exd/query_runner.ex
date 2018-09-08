@@ -26,17 +26,17 @@ defmodule Exd.QueryRunner do
     sourceable
     |> Sourceable.source([])
     |> Flow.map(wrap_name)
-    |> Flow.partition(stages: 1, window: window)
+    |> Flow.partition(stages: 1, max_demand: 1, window: window)
     |> Flow.reduce(fn -> [] end, fn document, acc -> [document | acc] end)
     |> Flow.on_trigger(&{[&1],[]})
-    |> Flow.partition(stages: 1, window: Flow.Window.periodic(1, :second))
+    |> Flow.partition(stages: 1, max_demand: 1, window: Flow.Window.periodic(1, :second))
     |> Flow.reject(fn events -> length(events) == 0 end)
     |> Flow.flat_map(&resolve_joins(query, &1))
     |> Flow.flat_map(&resolve_where(query, &1))
     |> Flow.uniq_by(&resolve_distinct(query, &1))
     |> Flow.map(&resolve_select(query, &1))
     |> Flow.each(&resolve_materialize(query, &1))
-    |> Flow.each(&resolve_into(query, &1))
+    |> resolve_into(query)
   end
 
   @doc """
@@ -151,9 +151,9 @@ defmodule Exd.QueryRunner do
     document
   end
 
-  defp resolve_into(%Query{into: nil} = query, documents), do: documents
-  defp resolve_into(%Query{into: into} = query, document) do
-    Exd.Sourceable.into(into, document)
+  defp resolve_into(flow, %Query{into: nil} = query), do: flow
+  defp resolve_into(flow, %Query{into: into} = query) do
+    Exd.Sourceable.into(into, flow)
   end
 
 end

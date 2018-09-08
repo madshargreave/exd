@@ -15,17 +15,27 @@ defimpl Exd.Sourceable, for: List do
   def source(list, context) do
     Flow.from_enumerable(list)
   end
+  # def into([first | _rest] = sinks, flow) when is_tuple(first) do
+    # sinks
+    # |> Enum.reduce(flow, fn sink, flow ->
+      # Exd.Sourceable.into(sink, flow)
+    # end)
+  # end
 end
 
 defimpl Exd.Sourceable, for: Tuple do
-  def source({module, args} = spec, context) when is_atom(module) do
-    opts = [stages: 1, max_demand: 1]
-    args = Keyword.put(args, :adapter, {module, args})
+  def source({source, args} = spec, context) when is_atom(source) do
+    subscription_opts = [stages: 1, max_demand: 1]
+    args = Keyword.put(args, :adapter, {source, args})
     specs =  [%{start: {Exd.Source, :start_link, [args]}}]
-    Flow.from_specs(specs, opts)
+    Flow.from_specs(specs, subscription_opts)
   end
-  def into({sink, args}, context) when is_atom(sink) do
-    apply(sink, :handle_into, [context])
+  def into({sink, args}, flow) when is_atom(sink) do
+    args = Keyword.put(args, :adapter, {sink, args})
+    spec = {Exd.Sink, args}
+    subscription_opts = Keyword.take(args, [:max_demand, :min_demand])
+    specs =  [{spec, subscription_opts}]
+    Flow.into_specs(flow, specs)
   end
 end
 

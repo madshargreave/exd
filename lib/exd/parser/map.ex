@@ -1,11 +1,16 @@
 defimpl Exd.Parseable, for: Map do
   alias Exd.Query
 
+  @plugins %{
+    "sql" => Exd.Sink.SQL
+  }
+
   def parse(map) do
     query =
       Query.new
       |> parse_from(map)
       |> parse_where(map)
+      |> parse_into(map)
     {:ok, query}
   end
 
@@ -48,5 +53,23 @@ defimpl Exd.Parseable, for: Map do
   defp parse_relation("less_than"), do: :<
   defp parse_relation("is"), do: :=
   defp parse_relation("is_not"), do: :<>
+
+  defp parse_into(query, %{
+    "into" => %{
+      "type" => type,
+      "config" => config
+    },
+  }) do
+    module = parse_into_module(type)
+    config = parse_into_config(config)
+    Query.into(query, module, config)
+  end
+  defp parse_into(query, _), do: query
+  defp parse_into_module(name), do: Map.fetch!(@plugins, name)
+  defp parse_into_config(config) when is_map(config) do
+    config
+    |> AtomicMap.convert(%{safe: true})
+    |> Map.to_list
+  end
 
 end

@@ -7,13 +7,15 @@ defimpl Exd.Parseable, for: Map do
   }
 
   @sinks %{
-    "sql" => Exd.Sink.SQL
+    "sql" => Exd.Sink.SQL,
+    "logger" => Exd.Sink.Logger
   }
 
   def parse(map) do
     query =
       Query.new
       |> parse_from(map)
+      |> parse_joins(map)
       |> parse_where(map)
       |> parse_select(map)
       |> parse_into(map)
@@ -46,6 +48,27 @@ defimpl Exd.Parseable, for: Map do
       {String.to_existing_atom(key), value}
     end
   end
+
+  defp parse_joins(query, %{
+    "sources" => sources,
+    "joins" => joins
+  }) do
+    joins
+    |> Enum.reduce(query, fn %{
+      "type" => type,
+      "from" => %{
+        "name" => name,
+        "source" => from_source
+      },
+      "left_key" => left_key,
+      "right_key" => right_key
+    }, acc ->
+      type = String.to_existing_atom(type)
+      source = parse_source(query, Map.get(sources, from_source))
+      Query.join(acc, type, name, source, left_key, right_key)
+    end)
+  end
+  defp parse_joins(query, _), do: query
 
   defp parse_where(query, %{
     "where" => wheres
@@ -83,7 +106,7 @@ defimpl Exd.Parseable, for: Map do
     }, acc ->
       module = parse_into_module(type)
       config = parse_into_config(config)
-      Query.into(query, module, config)
+      Query.into(acc, module, config)
     end)
   end
   defp parse_into(query, _), do: query

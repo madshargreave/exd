@@ -21,6 +21,20 @@ defmodule Exd.Query.Builder do
   end
 
   @doc """
+  Add a join clause to query
+  """
+  @spec join(Query.t, binary, binary, binary, binary, binary) :: Query.t
+  def join(query, type, name, source, left_key, right_key) do
+    joins = query.joins ++ [%{
+      type: type,
+      from: {name, source},
+      left_key: left_key,
+      right_key: right_key
+    }]
+    %Query{query | joins: joins}
+  end
+
+  @doc """
   Add a where clause to query
   """
   @spec where(Query.t, binary, term, any) :: Query.t
@@ -42,7 +56,7 @@ defmodule Exd.Query.Builder do
   """
   @spec into(Query.t, term, keyword) :: Query.t
   def into(query, sink, opts \\ []) do
-    intos = [{sink, opts} | query.into]
+    intos = query.into ++ [{sink, opts}]
     %Query{query | into: intos}
   end
 

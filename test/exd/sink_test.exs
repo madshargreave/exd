@@ -21,8 +21,8 @@ defmodule Exd.SinkTest do
             ]
         }
       )
-      |> Query.into(TestSink, parent_pid: self(), max_demand: 5)
-      |> Query.into(TestSink, parent_pid: self(), max_demand: 5)
+      |> Query.into(TestSink, parent_pid: self(), stages: 1, max_demand: 5)
+      |> Query.into(TestSink, parent_pid: self(), stages: 1, max_demand: 5)
       |> Repo.run
 
       assert_receive {

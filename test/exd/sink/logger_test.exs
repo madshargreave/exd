@@ -21,7 +21,7 @@ defmodule Exd.Sink.LoggerTest do
         }
       )
       |> Query.into(LoggerSink, max_demand: 5)
-      |> Repo.stream
+      |> Repo.run
     end
   end
 end

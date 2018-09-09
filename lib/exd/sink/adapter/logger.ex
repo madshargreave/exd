@@ -1,7 +1,6 @@
 defmodule Exd.Sink.Logger do
   @moduledoc """
   A sink that logs documents to stdout
-
   """
   use Exd.Sink.Adapter, name: :logger
   require Logger

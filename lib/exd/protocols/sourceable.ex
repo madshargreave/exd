@@ -17,10 +17,20 @@ defimpl Exd.Sourceable, for: List do
   end
   def into([], flow), do: flow
   def into([sink | _rest] = sinks, flow) when is_tuple(sink) do
+    # specs =
+    #   for {sink, args} <- sinks do
+    #     args = Keyword.put(args, :adapter, {sink, args})
+    #     spec = {Exd.Sink, args}
+    #     subscription_opts = Keyword.take(args, [:stages, :max_demand, :min_demand])
+    #     {spec, subscription_opts}
+    #   end
+    # Flow.through_specs(flow, specs, dispatcher: GenStage.DemandDispatcher)
     sinks
-    |> Enum.reduce(flow, fn sink, flow ->
-      Exd.Sourceable.into(sink, flow)
-    end)
+    |> Enum.map(&Exd.Sourceable.into(&1, flow))
+    |> Flow.merge(GenStage.DemandDispatcher, stages: 1)
+    # |> Enum.reduce(flow, fn sink, flow ->
+    #   Exd.Sourceable.into(sink, flow)
+    # end)
   end
 end
 

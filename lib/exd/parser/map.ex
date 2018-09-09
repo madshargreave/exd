@@ -1,7 +1,12 @@
 defimpl Exd.Parseable, for: Map do
   alias Exd.Query
 
-  @plugins %{
+  @sources %{
+    "list" => Exd.Source.List,
+    "crawler" => Exd.Source.Crawler
+  }
+
+  @sinks %{
     "sql" => Exd.Sink.SQL
   }
 
@@ -27,12 +32,19 @@ defimpl Exd.Parseable, for: Map do
   end
 
   defp parse_source(query, %{
-    "type" => "list",
-    "config" => %{
-      "value" => value
-    }
+    "type" => type,
+    "config" => config
   }) do
-    {Exd.Source.List, value: value}
+    module = parse_source_module(type)
+    config = parse_source_config(config)
+    {module, config}
+  end
+  defp parse_source(query, _), do: query
+  defp parse_source_module(name), do: Map.fetch!(@sources, name)
+  defp parse_source_config(config) when is_map(config) do
+    for {key, value} <- config, into: [] do
+      {String.to_existing_atom(key), value}
+    end
   end
 
   defp parse_where(query, %{
@@ -72,11 +84,11 @@ defimpl Exd.Parseable, for: Map do
     Query.into(query, module, config)
   end
   defp parse_into(query, _), do: query
-  defp parse_into_module(name), do: Map.fetch!(@plugins, name)
+  defp parse_into_module(name), do: Map.fetch!(@sinks, name)
   defp parse_into_config(config) when is_map(config) do
-    config
-    |> AtomicMap.convert(%{safe: false})
-    |> Map.to_list
+    for {key, value} <- config, into: [] do
+      {String.to_existing_atom(key), value}
+    end
   end
 
 end

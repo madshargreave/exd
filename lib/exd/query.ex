@@ -13,7 +13,7 @@ defmodule Exd.Query do
             select_merge: nil,
             where: [],
             or_where: [],
-            into: nil,
+            into: [],
             distinct: nil
 
   @typedoc "Query struct"

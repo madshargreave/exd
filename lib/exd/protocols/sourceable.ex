@@ -15,12 +15,13 @@ defimpl Exd.Sourceable, for: List do
   def source(list, context) do
     Flow.from_enumerable(list)
   end
-  # def into([first | _rest] = sinks, flow) when is_tuple(first) do
-    # sinks
-    # |> Enum.reduce(flow, fn sink, flow ->
-      # Exd.Sourceable.into(sink, flow)
-    # end)
-  # end
+  def into([], flow), do: flow
+  def into([sink | _rest] = sinks, flow) when is_tuple(sink) do
+    sinks
+    |> Enum.reduce(flow, fn sink, flow ->
+      Exd.Sourceable.into(sink, flow)
+    end)
+  end
 end
 
 defimpl Exd.Sourceable, for: Tuple do

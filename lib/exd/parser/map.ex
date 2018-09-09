@@ -74,14 +74,17 @@ defimpl Exd.Parseable, for: Map do
   end
 
   defp parse_into(query, %{
-    "into" => %{
+    "into" => into,
+  }) when is_list(into) do
+    into
+    |> Enum.reduce(query, fn %{
       "type" => type,
       "config" => config
-    },
-  }) do
-    module = parse_into_module(type)
-    config = parse_into_config(config)
-    Query.into(query, module, config)
+    }, acc ->
+      module = parse_into_module(type)
+      config = parse_into_config(config)
+      Query.into(query, module, config)
+    end)
   end
   defp parse_into(query, _), do: query
   defp parse_into_module(name), do: Map.fetch!(@sinks, name)

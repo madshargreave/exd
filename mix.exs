@@ -4,7 +4,7 @@ defmodule Exd.MixProject do
   def project do
     [
       app: :exd,
-      version: "0.1.5",
+      version: "0.1.6",
       elixir: "~> 1.7",
       description: description(),
       package: package(),

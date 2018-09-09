@@ -25,15 +25,17 @@ defmodule Exd.Parser.MapTest do
             "title" => "jobs.title",
             "salary" => "jobs.salary"
           },
-          into: {
-            Exd.Sink.SQL,
-              database: "harvest_dev",
-              datakey: "title",
-              hostname: "localhost",
-              max_demand: 5,
-              password: "postgres",
-              username: "postgres"
-          }
+          into: [
+            {
+              Exd.Sink.SQL,
+                database: "harvest_dev",
+                datakey: "title",
+                hostname: "localhost",
+                max_demand: 5,
+                password: "postgres",
+                username: "postgres"
+            }
+          ]
         }
       } = Exd.Parseable.parse(%{
         "sources" => %{
@@ -63,17 +65,19 @@ defmodule Exd.Parser.MapTest do
           "title" => "jobs.title",
           "salary" => "jobs.salary"
         },
-        "into" => %{
-          "type" => "sql",
-          "config" => %{
-            "hostname" => "localhost",
-            "database" => "harvest_dev",
-            "username" => "postgres",
-            "password" => "postgres",
-            "datakey" => "title",
-            "max_demand" => 5
+        "into" => [
+          %{
+            "type" => "sql",
+            "config" => %{
+              "hostname" => "localhost",
+              "database" => "harvest_dev",
+              "username" => "postgres",
+              "password" => "postgres",
+              "datakey" => "title",
+              "max_demand" => 5
+            }
           }
-        }
+        ]
       })
     end
   end

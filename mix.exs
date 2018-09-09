@@ -4,7 +4,7 @@ defmodule Exd.MixProject do
   def project do
     [
       app: :exd,
-      version: "0.1.3",
+      version: "0.1.4",
       elixir: "~> 1.7",
       description: description(),
       package: package(),
@@ -35,6 +35,7 @@ defmodule Exd.MixProject do
       {:mustache, "~> 0.3.0"},
       {:httpoison, "~> 1.0"},
       {:floki, "~> 0.20.0"},
+      {:version_tasks, "~> 0.11.3"},
       {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end

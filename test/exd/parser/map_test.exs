@@ -21,6 +21,10 @@ defmodule Exd.Parser.MapTest do
           where: [
             {"jobs.salary", :>, 25000}
           ],
+          select: %{
+            "title" => "jobs.title",
+            "salary" => "jobs.salary"
+          },
           into: {
             Exd.Sink.SQL,
               database: "harvest_dev",
@@ -55,6 +59,10 @@ defmodule Exd.Parser.MapTest do
             "value" => 25000
           }
         ],
+        "select" => %{
+          "title" => "jobs.title",
+          "salary" => "jobs.salary"
+        },
         "into" => %{
           "type" => "sql",
           "config" => %{

@@ -35,7 +35,7 @@ defimpl Exd.Sourceable, for: Tuple do
     spec = {Exd.Sink, args}
     subscription_opts = Keyword.take(args, [:max_demand, :min_demand])
     specs =  [{spec, subscription_opts}]
-    Flow.into_specs(flow, specs)
+    Flow.through_specs(flow, specs)
   end
 end
 

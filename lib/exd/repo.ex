@@ -12,4 +12,13 @@ defmodule Exd.Repo do
     QueryRunner.stream(query)
   end
 
+  @doc """
+  Runs the stream
+  """
+  def run(query, opts \\ []) do
+    query
+    |> stream()
+    |> Stream.run
+  end
+
 end

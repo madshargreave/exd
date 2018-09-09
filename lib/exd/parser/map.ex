@@ -10,6 +10,7 @@ defimpl Exd.Parseable, for: Map do
       Query.new
       |> parse_from(map)
       |> parse_where(map)
+      |> parse_select(map)
       |> parse_into(map)
     {:ok, query}
   end
@@ -54,6 +55,12 @@ defimpl Exd.Parseable, for: Map do
   defp parse_relation("is"), do: :=
   defp parse_relation("is_not"), do: :<>
 
+  defp parse_select(query, %{
+    "select" => select
+  }) do
+    Query.select(query, select)
+  end
+
   defp parse_into(query, %{
     "into" => %{
       "type" => type,
@@ -68,7 +75,7 @@ defimpl Exd.Parseable, for: Map do
   defp parse_into_module(name), do: Map.fetch!(@plugins, name)
   defp parse_into_config(config) when is_map(config) do
     config
-    |> AtomicMap.convert(%{safe: true})
+    |> AtomicMap.convert(%{safe: false})
     |> Map.to_list
   end
 

@@ -13,9 +13,6 @@ defmodule Exd.Source.List do
     cursor: %{limit: 10}
   ]
 
-  @doc """
-  The list itself is the state of the source
-  """
   @impl true
   def init([{:value, list} | _rest]) do
     {
@@ -26,9 +23,6 @@ defmodule Exd.Source.List do
     }
   end
 
-  @doc """
-  handle_paginates the last
-  """
   @impl true
   def handle_from(demand, state) do
     case Enum.split(state.list, state.cursor.limit) do

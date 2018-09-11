@@ -39,8 +39,9 @@ defmodule Exd.Source do
   @impl true
   def init(opts) do
     {adapter, adapter_opts} = Keyword.fetch!(opts, :adapter)
+    mode = Keyword.get(opts, :mode, :producer)
     {:ok, source_state} = adapter.init(adapter_opts)
-    {:producer, {adapter, 0, [], source_state}}
+    {mode, {adapter, 0, [], source_state}} |> IO.inspect
   end
 
   @impl true
@@ -56,6 +57,30 @@ defmodule Exd.Source do
       buffered_events,
       source_state
     })
+  end
+
+  @impl true
+  def handle_events(events, _from, {
+    adapter,
+    _demand,
+    _buffered_events,
+    source_state
+  } = state) do
+    join = %{}
+    {:ok, joined_events} = adapter.handle_join(events, state)
+    produced =
+      Flow.bounded_join(
+        :left_outer,
+        Flow.from_enumerable(events),
+        Flow.from_enumerable(joined_events),
+        &Kernel.get_in(&1, String.split(join.left_key, ".")),
+        &Kernel.get_in(&1, String.split(join.right_key, ".")),
+        fn left, right ->
+          Map.merge(left, right || %{})
+        end
+      )
+      |> Enum.to_list
+    {:noreply, events, state}
   end
 
   @impl true

@@ -82,7 +82,7 @@
 #         |> QueryRunner.stream
 #         |> Enum.sort
 #     end
-#   end
+#   # end
 
 #   test "it works with tuple selection" do
 #     query = %Query{
@@ -111,27 +111,27 @@
 #       |> Enum.sort
 #   end
 
-#   test "it works with into statement" do
-#     parent = self()
+#   # test "it works with into statement" do
+#   #   parent = self()
 
-#     assert [
-#       {"jack", "denmark"},
-#       {"mads", "denmark"}
-#     ] ==
-#       %Query{
-#         from: {"people", [
-#           %{"name" => "mads", "country" => "denmark"},
-#           %{"name" => "jack", "country" => "denmark"}
-#         ]},
-#         select: {"people.name", "people.country"},
-#         into: fn document -> send parent, {:received, document} end
-#       }
-#       |> QueryRunner.stream
-#       |> Enum.sort
+#   #   assert [
+#   #     {"jack", "denmark"},
+#   #     {"mads", "denmark"}
+#   #   ] ==
+#   #     %Query{
+#   #       from: {"people", [
+#   #         %{"name" => "mads", "country" => "denmark"},
+#   #         %{"name" => "jack", "country" => "denmark"}
+#   #       ]},
+#   #       select: {"people.name", "people.country"},
+#   #       into: fn document -> send parent, {:received, document} end
+#   #     }
+#   #     |> QueryRunner.stream
+#   #     |> Enum.sort
 
-#     assert_receive {:received, {"mads", "denmark"}}
-#     assert_receive {:received, {"jack", "denmark"}}
-#   end
+#   #   assert_receive {:received, {"mads", "denmark"}}
+#   #   assert_receive {:received, {"jack", "denmark"}}
+#   # end
 
 #   test "it works when filtering on a joined value" do
 #     query = %Query{
@@ -166,54 +166,54 @@
 #       |> Enum.sort
 #   end
 
-#   test "it works with external processes" do
-#     {:ok, people_agent} =
-#       Agent.start_link fn -> [
-#         %{"name" => "jack", "country" => "denmark"},
-#         %{"name" => "mads", "country" => "denmark"},
-#         %{"name" => "jack", "country" => "denmark"}
-#       ] end
-#     {:ok, existing_agent} = Agent.start_link fn -> [] end
+# #   test "it works with external processes" do
+# #     {:ok, people_agent} =
+# #       Agent.start_link fn -> [
+# #         %{"name" => "jack", "country" => "denmark"},
+# #         %{"name" => "mads", "country" => "denmark"},
+# #         %{"name" => "jack", "country" => "denmark"}
+# #       ] end
+# #     {:ok, existing_agent} = Agent.start_link fn -> [] end
 
-#     get_people = fn _document -> Agent.get(people_agent, &(&1)) end
-#     get_existing = fn _document -> Agent.get(existing_agent, &(&1)) end
-#     insert_into_people = fn document ->  Agent.update(existing_agent, &([document | &1])) end
+# #     get_people = fn _document -> Agent.get(people_agent, &(&1)) end
+# #     get_existing = fn _document -> Agent.get(existing_agent, &(&1)) end
+# #     insert_into_people = fn document ->  Agent.update(existing_agent, &([document | &1])) end
 
-#     query = %Query{
-#       from: {"people", get_people},
-#       joins: [
-#         %{
-#           type: :left_outer,
-#           from: {"existing", get_existing},
-#           left_key: "people.name",
-#           right_key: "existing.name"
-#         }
-#       ],
-#       where: [
-#         {"existing.name", :=, nil}
-#       ],
-#       distinct: "people.name",
-#       select: %{
-#         "name" => "people.name",
-#         "country" => "people.country"
-#       },
-#       into: insert_into_people
-#     }
+# #     query = %Query{
+# #       from: {"people", get_people},
+# #       joins: [
+# #         %{
+# #           type: :left_outer,
+# #           from: {"existing", get_existing},
+# #           left_key: "people.name",
+# #           right_key: "existing.name"
+# #         }
+# #       ],
+# #       where: [
+# #         {"existing.name", :=, nil}
+# #       ],
+# #       distinct: "people.name",
+# #       select: %{
+# #         "name" => "people.name",
+# #         "country" => "people.country"
+# #       },
+# #       into: insert_into_people
+# #     }
 
-#     assert [
-#       %{"name" => "jack", "country" => "denmark"},
-#       %{"name" => "mads", "country" => "denmark"}
-#     ] == query
-#     |> QueryRunner.stream
-#     |> Enum.sort
+# #     assert [
+# #       %{"name" => "jack", "country" => "denmark"},
+# #       %{"name" => "mads", "country" => "denmark"}
+# #     ] == query
+# #     |> QueryRunner.stream
+# #     |> Enum.sort
 
-#     Agent.update(people_agent, fn list -> [%{"name" => "john", "country" => "denmark"} | list] end)
+# #     Agent.update(people_agent, fn list -> [%{"name" => "john", "country" => "denmark"} | list] end)
 
-#     assert [
-#       %{"name" => "john", "country" => "denmark"}
-#     ] == query
-#     |> QueryRunner.stream
-#     |> Enum.sort
+# #     assert [
+# #       %{"name" => "john", "country" => "denmark"}
+# #     ] == query
+# #     |> QueryRunner.stream
+# #     |> Enum.sort
 #   end
 
 # end

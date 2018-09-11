@@ -58,6 +58,13 @@ defmodule Exd.Store.Memory do
     table_name = Keyword.fetch!(opts, :name)
     table_opts = [:set, :named_table, :public, read_concurrency: true]
     :ets.new(table_name, table_opts)
+
+    initial_state = Keyword.get(opts, :initial_state)
+    if initial_state do
+      for doc <- initial_state do
+        put(table_name, doc[opts[:primary_key]], doc)
+      end
+    end
   end
 
 end

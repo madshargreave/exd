@@ -45,7 +45,7 @@ defimpl Exd.Parseable, for: Map do
   defp parse_source_module(name), do: Map.fetch!(@sources, name)
   defp parse_source_config(config) when is_map(config) do
     for {key, value} <- config, into: [] do
-      {String.to_existing_atom(key), value}
+      {String.to_atom(key), value}
     end
   end
 
@@ -63,7 +63,7 @@ defimpl Exd.Parseable, for: Map do
       "left_key" => left_key,
       "right_key" => right_key
     }, acc ->
-      type = String.to_existing_atom(type)
+      type = String.to_atom(type)
       source = parse_source(query, Map.get(sources, from_source))
       Query.join(acc, type, name, source, left_key, right_key)
     end)
@@ -113,7 +113,7 @@ defimpl Exd.Parseable, for: Map do
   defp parse_into_module(name), do: Map.fetch!(@sinks, name)
   defp parse_into_config(config) when is_map(config) do
     for {key, value} <- config, into: [] do
-      {String.to_existing_atom(key), value}
+      {String.to_atom(key), value}
     end
   end
 

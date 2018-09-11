@@ -37,6 +37,10 @@ defmodule Exd.Source.Crawler do
     end
   end
 
+  def handle_join(documents, state) do
+
+  end
+
   defp download_page(url) do
     # Logger.info "Download #{url}"
     case HTTPoison.get(url) do

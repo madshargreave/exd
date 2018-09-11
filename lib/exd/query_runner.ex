@@ -31,7 +31,8 @@ defmodule Exd.QueryRunner do
     |> Flow.on_trigger(&{[&1],[]})
     |> Flow.partition(stages: 1, max_demand: 1, window: Flow.Window.periodic(1, :second))
     |> Flow.reject(fn events -> length(events) == 0 end)
-    |> Flow.flat_map(&resolve_joins(query, &1))
+    |> resolve_joins(query)
+    # |> Flow.flat_map(&resolve_joins(query, &1))
     |> Flow.flat_map(&resolve_where(query, &1))
     |> Flow.uniq_by(&resolve_distinct(query, &1))
     |> Flow.map(&resolve_select(query, &1))
@@ -39,35 +40,46 @@ defmodule Exd.QueryRunner do
     |> resolve_into(query)
   end
 
-  @doc """
-  Resolves join expressions
-  """
-  defp resolve_joins(%{from: {name, _source_spec}, joins: joins} = query, documents) do
-    inner = Flow.from_enumerable(documents)
-
+  defp resolve_joins(flow, %{joins: joins} = query) do
     joins
-    |> Enum.reduce(inner, &resolve_join(&1, &2, documents))
-    |> Enum.to_list()
+    |> Enum.reduce(flow, fn %{from: {name, {source, args}}} = join, flow ->
+      IO.inspect join
+      subscription_opts = [stages: 1, max_demand: 1]
+      args = Keyword.put(args, :adapter, {source, args})
+      specs =  [%{start: {Exd.Source, :start_link, [{:mode, :producer_consumer} | args]}}]
+      Flow.through_specs(flow, specs, subscription_opts)
+    end)
   end
-  defp resolve_joins(%{from: {name, _source_spec}} = query, documents), do: documents
 
-  defp resolve_join(%{from: {name, source}} = join, left_flow, documents) do
-    right_flow =
-      source
-      |> Sourceable.source(documents)
-      |> Flow.map(fn doc -> %{ name => doc } end)
+  # @doc """
+  # Resolves join expressions
+  # """
+  # defp resolve_joins(%{from: {name, _source_spec}, joins: joins} = query, documents) do
+  #   inner = Flow.from_enumerable(documents)
 
-    Flow.bounded_join(
-      join.type,
-      left_flow,
-      right_flow,
-      &Kernel.get_in(&1, String.split(join.left_key, ".")),
-      &Kernel.get_in(&1, String.split(join.right_key, ".")),
-      fn left, right ->
-        Map.merge(left, right || %{})
-      end
-    )
-  end
+  #   joins
+  #   |> Enum.reduce(inner, &resolve_join(&1, &2, documents))
+  #   |> Enum.to_list()
+  # end
+  # defp resolve_joins(%{from: {name, _source_spec}} = query, documents), do: documents
+
+  # defp resolve_join(%{from: {name, source}} = join, left_flow, documents) do
+  #   right_flow =
+  #     source
+  #     |> Sourceable.source(documents)
+  #     |> Flow.map(fn doc -> %{ name => doc } end)
+
+  #   Flow.bounded_join(
+  #     join.type,
+  #     left_flow,
+  #     right_flow,
+  #     &Kernel.get_in(&1, String.split(join.left_key, ".")),
+  #     &Kernel.get_in(&1, String.split(join.right_key, ".")),
+  #     fn left, right ->
+  #       Map.merge(left, right || %{})
+  #     end
+  #   )
+  # end
 
   defp resolve_distinct(%Query{distinct: nil} = query, document), do: document
   defp resolve_distinct(%Query{distinct: distinct} = query, document) do

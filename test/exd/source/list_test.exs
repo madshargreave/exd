@@ -3,7 +3,7 @@
 
 #   alias Exd.Query
 #   alias Exd.Repo
-#   alias Exd.Source.List, as: ListAdapter
+  # alias Exd.Source.List, as: ListAdapter
 
 #   describe "from/1" do
 #     test "it returns preconfigured value" do
@@ -14,12 +14,12 @@
 #       |> Query.from(
 #         "jobs",
 #         {
-#           ListAdapter,
-#             value: [
-#               %{"title" => "job 1", "salary" => 10000},
-#               %{"title" => "job 2", "salary" => 15000},
-#               %{"title" => "job 3", "salary" => 15000}
-#             ]
+          # ListAdapter,
+          #   value: [
+          #     %{"title" => "job 1", "salary" => 10000},
+          #     %{"title" => "job 2", "salary" => 15000},
+          #     %{"title" => "job 3", "salary" => 15000}
+          #   ]
 #         }
 #       )
 #       |> Query.where("jobs.salary", :>, 12500)

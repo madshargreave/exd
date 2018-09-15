@@ -35,8 +35,8 @@ defmodule Exd.Query do
   @type select_expr :: map()
 
   defdelegate new(), to: Builder
-  defdelegate from(query \\ %Query{}, name, source), to: Builder
-  defdelegate join(query, type, name, source, left_key, right_key), to: Builder
+  defdelegate from(query \\ %Query{}, namespace, specable, opts \\ []), to: Builder
+  defdelegate join(query, namespace, specable, opts \\ []), to: Builder
   defdelegate where(query, field, relation, value), to: Builder
   defdelegate select(query, selection), to: Builder
   defdelegate into(query, sink, opts \\ []), to: Builder

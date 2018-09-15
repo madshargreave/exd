@@ -43,12 +43,12 @@ defmodule Exd.QueryRunner do
   defp resolve_joins(flow, %{joins: joins} = query) do
     joins
     |> Enum.reduce(flow, fn %{from: {name, {source, args}}} = join, flow ->
-      IO.inspect join
       subscription_opts = [stages: 1, max_demand: 1]
       args = Keyword.put(args, :adapter, {source, args})
-      specs =  [%{start: {Exd.Source, :start_link, [{:mode, :producer_consumer} | args]}}]
-      Flow.through_specs(flow, specs, subscription_opts)
+      specs =  [{%{start: {Exd.Mapper, :start_link, [args]}}, subscription_opts}]
+      Flow.through_specs(flow, specs)
     end)
+    |> Flow.flat_map(fn docs -> docs end)
   end
 
   # @doc """

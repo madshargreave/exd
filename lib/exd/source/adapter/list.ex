@@ -26,7 +26,7 @@ defmodule Exd.Source.List do
   end
 
   @impl true
-  def handle_from(demand, state) do
+  def handle_from(_demand, state) do
     case Enum.split(state.list, state.cursor.limit) do
       {[], _} ->
         :done

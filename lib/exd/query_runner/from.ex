@@ -30,14 +30,13 @@ defmodule Exd.Runner.From do
       window: window
     ]
 
-    adapter_spec = Exd.Specable.to_spec(specable)
-    source_opts = [adapter: adapter_spec]
-    specs =  [{Exd.Source, source_opts}]
-
-    specs
-    |> Flow.from_specs(subscription_opts)
-    |> Flow.map(fn event -> %{ namespace => event } end)
+    Exd.Specable.to_spec(specable, subscription_opts)
+    |> Flow.map(&wrap_in_namespace(&1, namespace))
     |> Flow.map(&to_record(&1, key_fn))
+  end
+
+  defp wrap_in_namespace(event, namespace) do
+    %{ namespace => event }
   end
 
   defp to_record(event, key_fn) do

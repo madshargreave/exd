@@ -13,7 +13,7 @@ defmodule Exd.Runner.Join do
   Creates a new flow from source
   """
   @spec join(Flow.t, binary(), any(), options()) :: Flow.t
-  def join(flow, namespace, specable, opts \\ []) do
+  def join(flow, namespace, specable, opts \\ []) when is_function(specable) do
     max_demand = Keyword.get(opts, :max_demand, 1)
     min_demand = Keyword.get(opts, :min_demand, 0)
     stages = Keyword.get(opts, :stages, 1)
@@ -24,7 +24,8 @@ defmodule Exd.Runner.Join do
       stages: stages
     ]
 
-    adapter_spec = Exd.Specable.to_spec(specable)
+    # adapter_spec = Exd.Specable.to_spec(specable)
+    adapter_spec = {Exd.Source.Function, fn: specable}
     source_opts = [adapter: adapter_spec, namespace: namespace]
     spec = {Exd.Mapper, source_opts}
     specs =  [{spec, subscription_opts}]

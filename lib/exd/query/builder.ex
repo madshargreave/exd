@@ -16,20 +16,17 @@ defmodule Exd.Query.Builder do
   Set the from clause for query
   """
   @spec from(Query.t, binary, any) :: Query.t
-  def from(query \\ %Query{}, name, source) do
-    %Query{query | from: {name, source}}
+  def from(query \\ %Query{}, namespace, specable, opts \\ []) do
+    %Query{query | from: {namespace, specable, opts}}
   end
 
   @doc """
   Add a join clause to query
   """
-  @spec join(Query.t, binary, binary, binary, binary, binary) :: Query.t
-  def join(query, type, name, source, left_key, right_key) do
+  @spec join(Query.t, binary, any, keyword) :: Query.t
+  def join(query, namespace, specable, opts \\ []) do
     joins = query.joins ++ [%{
-      type: type,
-      from: {name, source},
-      left_key: left_key,
-      right_key: right_key
+      from: {namespace, specable, opts}
     }]
     %Query{query | joins: joins}
   end

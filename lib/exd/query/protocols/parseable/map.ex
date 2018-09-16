@@ -33,7 +33,7 @@ defimpl Exd.Parseable, for: Map do
     Query.from(query, from_name, source)
   end
 
-  defp parse_source(query, %{
+  defp parse_source(_query, %{
     "type" => type,
     "config" => config
   }) do

@@ -45,8 +45,8 @@ defmodule Exd do
         concurrency: 10
     end
   """
-  alias Exd.Query
-  alias Exd.Repo
-  alias Exd.Job
+  # alias Exd.Query
+  # alias Exd.Repo
+  # alias Exd.Job
 
 end

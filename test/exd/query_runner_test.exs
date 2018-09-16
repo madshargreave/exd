@@ -1,219 +1,113 @@
-# defmodule Exd.QueryRunnerTest do
-#   use ExUnit.Case
+defmodule Exd.QueryRunnerTest do
+  use ExUnit.Case
 
-#   alias Exd.QueryRunner
-#   alias Exd.Query
+  alias Exd.QueryRunner
+  alias Exd.Query
 
-#   describe "stream/1" do
-#     test "it works with query literals" do
-#       query = %Query{from: {"numbers", [1, 2, 3]}}
+  describe "stream/1" do
+    test "it works with simple selection" do
+      assert [
+        {"bitcoin", "btc"},
+        {"ethereum", "eth"},
+        {"ripple", "xrp"}
+      ] ==
+        Query.new
+        |> Query.from(
+          "coins",
+          [
+            %{"name" => "bitcoin", "symbol" => "btc"},
+            %{"name" => "ethereum", "symbol" => "eth"},
+            %{"name" => "ripple", "symbol" => "xrp"}
+          ]
+        )
+        |> Query.select({"coins.name", "coins.symbol"})
+        |> QueryRunner.stream
+        |> Enum.to_list
+    end
 
-#       assert [1, 2, 3] ==
-#         query
-#         |> QueryRunner.stream
-#         |> Enum.sort
-#     end
+    test "it works with subquery" do
+      assert [
+        %{
+          "name" => "bitcoin",
+          "symbol" => "btc",
+          "marketcap" => 100_000_000
+        },
+        %{
+          "name" => "ethereum",
+          "symbol" => "eth",
+          "marketcap" => 25_000_000
+        }
+      ] ==
+        Query.new
+        |> Query.from(
+          "outer",
+          Query.new
+          |> Query.from(
+            "inner",
+            [
+              %{"name" => "bitcoin", "symbol" => "btc", "marketcap" => 100_000_000},
+              %{"name" => "ethereum", "symbol" => "eth", "marketcap" => 25_000_000},
+              %{"name" => "ripple", "symbol" => "xrp", "marketcap" => 10_000_000}
+            ]
+          )
+        )
+        |> Query.where("outer.marketcap", :>, 15_000_000)
+        |> Query.select(%{
+          "name" => "outer.name",
+          "symbol" => "outer.symbol",
+          "marketcap" => "outer.marketcap"
+        })
+        |> QueryRunner.stream
+        |> Enum.to_list
+    end
 
-#     test "it works with query functions" do
-#       query = %Query{from: {"numbers", fn _context -> [1, 2, 3] end}}
+    test "it works with multiple subqueries" do
+      sub1 =
+        Query.new
+        |> Query.from(
+          "inner",
+          [
+            %{"name" => "bitcoin", "symbol" => "btc", "marketcap" => 100_000_000},
+            %{"name" => "ethereum", "symbol" => "eth", "marketcap" => 25_000_000}
+          ]
+        )
 
-#       assert [1, 2, 3] ==
-#         query
-#         |> QueryRunner.stream
-#         |> Enum.sort
-#     end
+      sub2 =
+        Query.new
+        |> Query.from(
+          "inner",
+          [
+            %{"name" => "ripple", "symbol" => "xrp", "marketcap" => 10_000_000}
+          ]
+        )
 
-#     test "it works with query contexted functions" do
-#       query = %Query{
-#         from: {"people", [%{"name" => "mads", "country" => "denmark", "age" => 20}]},
-#         joins: [
-#           %{
-#             type: :inner,
-#             from: {"testing", fn context ->
-#               for document <- context,
-#                   i <- 0..2 do
-#                 %{"name" => "denmark", "age_times_two" => document["people"]["age"] * i}
-#               end
-#             end},
-#             left_key: "people.country",
-#             right_key: "testing.name"
-#           }
-#         ],
-#         select: {"people.name", "people.country", "testing.age_times_two"}
-#       }
+      assert [
+        %{
+          "name" => "bitcoin",
+          "symbol" => "btc",
+          "marketcap" => 100_000_000
+        },
+        %{
+          "name" => "ethereum",
+          "symbol" => "eth",
+          "marketcap" => 25_000_000
+        },
+        %{
+          "name" => "ripple",
+          "symbol" => "xrp",
+          "marketcap" => 10_000_000
+        }
+      ] ==
+        Query.new
+        |> Query.from("outer", [sub1, sub2])
+        |> Query.select(%{
+          "name" => "outer.name",
+          "symbol" => "outer.symbol",
+          "marketcap" => "outer.marketcap"
+        })
+        |> QueryRunner.stream
+        |> Enum.sort_by & &1["marketcap"], &>/2
+    end
+  end
 
-#       assert [
-#         {"mads", "denmark", 0},
-#         {"mads", "denmark", 20},
-#         {"mads", "denmark", 40}
-#       ] ==
-#         query
-#         |> QueryRunner.stream
-#         |> Enum.sort
-#     end
-
-#     test "it works with subqueries" do
-#       even = %Query{from: {"even", [2, 4, 6]}}
-#       odd = %Query{from: {"odd", [1, 3, 5]}}
-#       query = %Query{from: {"numbers", [even, odd]}}
-
-#       assert [1, 2, 3, 4, 5, 6] ==
-#         query
-#         |> QueryRunner.stream
-#         |> Enum.sort
-#     end
-
-#     test "it works with joins" do
-#       query = %Query{
-#         from: {"people", [%{"name" => "mads", "country" => "denmark"}]},
-#         joins: [
-#           %{
-#             type: :inner,
-#             from: {"countries", [%{"name" => "denmark", "population" => 5_000_000}]},
-#             left_key: "people.country",
-#             right_key: "countries.name"
-#           }
-#         ],
-#         select: {"people.name", "people.country", "countries.population"}
-#       }
-
-#       assert [{"mads", "denmark", 5_000_000}] ==
-#         query
-#         |> QueryRunner.stream
-#         |> Enum.sort
-#     end
-#   # end
-
-#   test "it works with tuple selection" do
-#     query = %Query{
-#       from: {"people", [%{"name" => "mads", "country" => "denmark"}]},
-#       select: {"people.name", "people.country"}
-#     }
-
-#     assert [{"mads", "denmark"}] ==
-#       query
-#       |> QueryRunner.stream
-#       |> Enum.sort
-#   end
-
-#   test "it works with map selection" do
-#     query = %Query{
-#       from: {"people", [%{"name" => "mads", "country" => "denmark"}]},
-#       select: %{
-#         name: "people.name",
-#         country: "people.country"
-#       }
-#     }
-
-#     assert [%{name: "mads", country: "denmark"}] ==
-#       query
-#       |> QueryRunner.stream
-#       |> Enum.sort
-#   end
-
-#   # test "it works with into statement" do
-#   #   parent = self()
-
-#   #   assert [
-#   #     {"jack", "denmark"},
-#   #     {"mads", "denmark"}
-#   #   ] ==
-#   #     %Query{
-#   #       from: {"people", [
-#   #         %{"name" => "mads", "country" => "denmark"},
-#   #         %{"name" => "jack", "country" => "denmark"}
-#   #       ]},
-#   #       select: {"people.name", "people.country"},
-#   #       into: fn document -> send parent, {:received, document} end
-#   #     }
-#   #     |> QueryRunner.stream
-#   #     |> Enum.sort
-
-#   #   assert_receive {:received, {"mads", "denmark"}}
-#   #   assert_receive {:received, {"jack", "denmark"}}
-#   # end
-
-#   test "it works when filtering on a joined value" do
-#     query = %Query{
-#       from: {"people", [
-#         %{"name" => "mads", "country" => "denmark"},
-#         %{"name" => "jack", "country" => "denmark"}
-#       ]},
-#       joins: [
-#         %{
-#           type: :left_outer,
-#           from: {"existing", [
-#             %{"name" => "jack", "country" => "denmark"}
-#           ]},
-#           left_key: "people.name",
-#           right_key: "existing.name"
-#         }
-#       ],
-#       where: [
-#         {"existing.name", :=, nil}
-#       ],
-#       select: %{
-#         name: "people.name",
-#         country: "people.country"
-#       }
-#     }
-
-#     assert [
-#       %{name: "mads", country: "denmark"}
-#     ] ==
-#       query
-#       |> QueryRunner.stream
-#       |> Enum.sort
-#   end
-
-# #   test "it works with external processes" do
-# #     {:ok, people_agent} =
-# #       Agent.start_link fn -> [
-# #         %{"name" => "jack", "country" => "denmark"},
-# #         %{"name" => "mads", "country" => "denmark"},
-# #         %{"name" => "jack", "country" => "denmark"}
-# #       ] end
-# #     {:ok, existing_agent} = Agent.start_link fn -> [] end
-
-# #     get_people = fn _document -> Agent.get(people_agent, &(&1)) end
-# #     get_existing = fn _document -> Agent.get(existing_agent, &(&1)) end
-# #     insert_into_people = fn document ->  Agent.update(existing_agent, &([document | &1])) end
-
-# #     query = %Query{
-# #       from: {"people", get_people},
-# #       joins: [
-# #         %{
-# #           type: :left_outer,
-# #           from: {"existing", get_existing},
-# #           left_key: "people.name",
-# #           right_key: "existing.name"
-# #         }
-# #       ],
-# #       where: [
-# #         {"existing.name", :=, nil}
-# #       ],
-# #       distinct: "people.name",
-# #       select: %{
-# #         "name" => "people.name",
-# #         "country" => "people.country"
-# #       },
-# #       into: insert_into_people
-# #     }
-
-# #     assert [
-# #       %{"name" => "jack", "country" => "denmark"},
-# #       %{"name" => "mads", "country" => "denmark"}
-# #     ] == query
-# #     |> QueryRunner.stream
-# #     |> Enum.sort
-
-# #     Agent.update(people_agent, fn list -> [%{"name" => "john", "country" => "denmark"} | list] end)
-
-# #     assert [
-# #       %{"name" => "john", "country" => "denmark"}
-# #     ] == query
-# #     |> QueryRunner.stream
-# #     |> Enum.sort
-#   end
-
-# end
+end

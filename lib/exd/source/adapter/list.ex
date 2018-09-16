@@ -10,27 +10,36 @@ defmodule Exd.Source.List do
 
   defstruct [
     list: nil,
+    key: nil,
     cursor: %{limit: 10}
   ]
 
   @impl true
-  def init([{:value, list} | _rest]) do
+  def init([{:value, list} | rest]) do
     {
       :ok,
       %__MODULE__{
-        list: list
+        list: list,
+        key: rest[:key] || "id"
       }
     }
   end
 
   @impl true
-  def handle_from(demand, state) do
+  def handle_from(_demand, state) do
     case Enum.split(state.list, state.cursor.limit) do
       {[], _} ->
         :done
       {produced, remaining} ->
         {:ok, produced, %__MODULE__{state | list: remaining}}
     end
+  end
+
+  @impl true
+  def handle_join(contexts, state) do
+    keys = for context <- contexts, do: Keyword.fetch!(context, :key)
+    matches = for item <- state.list, item[state.key] in keys, do: item
+    {:ok, matches}
   end
 
 end

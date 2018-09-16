@@ -11,7 +11,7 @@ defmodule Exd.Repo.Supervisor do
   end
 
   @impl true
-  def init({repo, otp_app, opts}) do
+  def init({repo, _otp_app, _opts}) do
     supervise([
       repo_spec(repo)
     ], strategy: :one_for_one, max_restarts: 0)

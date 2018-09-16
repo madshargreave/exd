@@ -49,10 +49,4 @@ defmodule Exd.Sink do
     {:stop, :shutdown, state}
   end
 
-  # @impl true
-  # def handle_subscribe(:producer, _options, from, {adapter, sink_state, producers} = state) do
-  #   producers = Map.put(producers, from, true)
-  #   {:manual, {adapter, sink_state, producers}}
-  # end
-
 end

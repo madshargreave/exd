@@ -28,6 +28,7 @@ defmodule Exd.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:event_bus, "~> 1.5.1"},
       {:flow, "~> 0.14"},
       {:atomic_map, "~> 0.8"},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},

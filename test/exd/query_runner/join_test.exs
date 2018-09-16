@@ -39,5 +39,6 @@ defmodule Exd.Runner.JoinTest do
         |> Planner.plan
         |> Enum.sort_by& get_in(&1.value, ~w(coins name))
     end
+
   end
 end

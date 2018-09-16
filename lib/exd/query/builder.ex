@@ -53,8 +53,8 @@ defmodule Exd.Query.Builder do
   """
   @spec into(Query.t, term, keyword) :: Query.t
   def into(query, sink, opts \\ []) do
-    intos = query.into ++ [{sink, opts}]
-    %Query{query | into: intos}
+    # intos = query.into ++ [{sink, opts}]
+    %Query{query | into: {sink, opts}}
   end
 
 end

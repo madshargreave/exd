@@ -65,24 +65,6 @@ defmodule Exd.Source do
   end
 
   @impl true
-  def handle_call({:insert, documents}, _from, {
-    adapter,
-    buffered_demand,
-    buffered_events,
-    source_state
-  }) do
-    case adapter.insert(documents, source_state) do
-      {:ok, source_state} ->
-        dispatch_events({
-          adapter,
-          buffered_demand,
-          buffered_events,
-          source_state
-        })
-    end
-  end
-
-  @impl true
   def handle_call(:get_state, _from, {_demand, _events, source_state} = state) do
     {:reply, source_state, [], state}
   end

@@ -7,35 +7,39 @@ defmodule Exd.Source.Bus do
     * `:value` - The list itself
   """
   use Exd.Source.Adapter
+  alias Exd.Source.Bus.Broker
 
   defstruct [
-    topic: nil
+    topic: nil,
+    broker: nil,
+    shadows: []
   ]
 
-  # @impl true
-  # def init([{:value, list} | rest]) do
-  #   {
-  #     :ok,
-  #     %__MODULE__{
-  #     }
-  #   }
-  # end
+  @impl true
+  def init([{:topic, topic} | rest]) do
+    {:ok, broker} = Broker.start_link(parent: self())
+    {
+      :ok,
+      %__MODULE__{
+        topic: topic,
+        broker: broker
+      }
+    }
+  end
 
-  # @impl true
-  # def handle_from(_demand, state) do
-  #   case Enum.split(state.list, state.cursor.limit) do
-  #     {[], _} ->
-  #       :done
-  #     {produced, remaining} ->
-  #       {:ok, produced, %__MODULE__{state | list: remaining}}
-  #   end
-  # end
+  @impl true
+  def handle_from(demand, state) do
+    {shadows, buffered} = Enum.split(state.shadows, demand)
+    produced =
+      for shadow <- shadows do
+        EventBus.fetch_event(shadow)
+      end
+    {:ok, %__MODULE__{state | shadows: buffered}}
+  end
 
-  # @impl true
-  # def handle_join(contexts, state) do
-  #   keys = for context <- contexts, do: Keyword.fetch!(context, :key)
-  #   matches = for item <- state.list, item[state.key] in keys, do: item
-  #   {:ok, matches}
-  # end
+  @impl true
+  def handle_info({:record_received, event_id} = shadow, _, state) do
+    {:noreply, :ok, %__MODULE__{state | shadows: state.shadows ++ [shadow]}}
+  end
 
 end

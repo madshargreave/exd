@@ -21,4 +21,10 @@ defmodule Exd.Repo do
     |> Stream.run
   end
 
+  def start_link(query, opts \\ []) do
+    query
+    |> stream()
+    |> Flow.start_link
+  end
+
 end

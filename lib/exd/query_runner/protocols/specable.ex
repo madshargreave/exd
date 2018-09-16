@@ -54,3 +54,20 @@ defimpl Exd.Specable, for: Exd.Query do
     |> Exd.Runner.Select.select(namespace)
   end
 end
+
+defimpl Exd.Specable, for: Tuple do
+  def to_spec({module, args} = spec, subscription_opts \\ []) when is_atom(module) and is_list(args) do
+    source_opts = [adapter: spec]
+    specs = [{Exd.Source, source_opts}]
+
+    specs
+    |> Flow.from_specs(subscription_opts)
+  end
+end
+
+
+defimpl Exd.Specable, for: PID do
+  def to_spec(pid, subscription_opts \\ []) do
+    Flow.from_stage(pid)
+  end
+end

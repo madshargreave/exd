@@ -86,7 +86,7 @@ defmodule Exd.Source.Crawler do
                     %{replace: [pattern, replacement]} ->
                       value && String.replace(value, pattern, replacement)
                     %{cast: type} ->
-                      type = String.to_existing_atom(type)
+                      type = String.to_atom(type)
                       case type do
                         :float -> value && String.to_float(value)
                         :integer -> value && String.to_integer(value)

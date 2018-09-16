@@ -44,8 +44,8 @@ defmodule Exd.Runner.Planner do
   end
 
   defp plan_into(flow, %Query{into: nil} = _query), do: flow
-  defp plan_into(flow, query) do
-    Into.into(flow, query)
+  defp plan_into(flow, %Query{into: {namespace, sink}}) do
+    Into.into(flow, sink)
   end
 
 end

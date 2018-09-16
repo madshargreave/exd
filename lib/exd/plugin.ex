@@ -1,6 +1,14 @@
 defmodule Exd.Plugin do
   @moduledoc """
   Defines helpers from both built-in and external Exd plugins
+
+  ## Usage
+    # inside config.exs
+    config :exd,
+      plugins: [
+        Exd.Plugin.HTML,
+        Exd.Plugin.XML
+      ]
   """
 
   # Built-in plugins

@@ -30,7 +30,7 @@ defmodule Exd.Runner.IntoTest do
           }
         )
         |> Planner.plan
-        |> Enum.to_list
+        |> Enum.sort_by(& elem(&1, 0))
 
       assert_receive {:results, [{"bitcoin"}]}
       assert_receive {:results, [{"ethereum"}]}

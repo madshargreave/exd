@@ -28,7 +28,7 @@ defimpl Exd.Resolvable, for: Tuple do
   def resolve({func, left, right}, record) when is_atom(func) do
     left = Exd.Resolvable.resolve(left, record)
     right = Exd.Resolvable.resolve(right, record)
-    Exd.Transformable.transform(left, {func, right})
+    Exd.Plugin.__helper__({func, left, right})
   end
 end
 

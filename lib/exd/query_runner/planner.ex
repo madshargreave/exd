@@ -22,7 +22,6 @@ defmodule Exd.Runner.Planner do
     From.from(namespace, specable, opts)
   end
 
-  defp plan_joins(flow, %Query{joins: nil} = _query), do: flow
   defp plan_joins(flow, %Query{joins: joins} = _query) do
     joins
     |> Enum.reduce(flow, fn %{from: {namespace, specable, opts}} = _join, flow ->
@@ -30,7 +29,6 @@ defmodule Exd.Runner.Planner do
     end)
   end
 
-  defp plan_wheres(flow, %Query{where: nil} = _query), do: flow
   defp plan_wheres(flow, %Query{where: wheres} = _query) do
     wheres
     |> Enum.reduce(flow, fn {field, relation, value} = _where, flow ->

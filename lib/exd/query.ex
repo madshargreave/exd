@@ -6,7 +6,8 @@ defmodule Exd.Query do
   alias Exd.Query.Builder
   alias Exd.Query.Validator
 
-  defstruct materialize: nil,
+  defstruct plugin_module: nil,
+            materialize: nil,
             from: nil,
             joins: [],
             select: nil,
@@ -34,7 +35,7 @@ defmodule Exd.Query do
   @typedoc "Select expression"
   @type select_expr :: map()
 
-  defdelegate new(), to: Builder
+  defdelegate new, to: Builder
   defdelegate from(query \\ %Query{}, namespace, specable, opts \\ []), to: Builder
   defdelegate join(query, namespace, specable, opts \\ []), to: Builder
   defdelegate where(query, field, relation, value), to: Builder

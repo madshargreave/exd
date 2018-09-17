@@ -33,6 +33,12 @@ defmodule Exd.Runner.From do
     Exd.Specable.to_spec(specable, subscription_opts)
     |> Flow.map(&wrap_in_namespace(&1, namespace))
     |> Flow.map(&to_record(&1, key_fn))
+    |> Flow.partition(
+      stages: stages,
+      min_demand: min_demand,
+      max_demand: max_demand,
+      key: &(&1.key)
+    )
   end
 
   defp wrap_in_namespace(event, namespace) do

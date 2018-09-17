@@ -28,8 +28,9 @@ defimpl Exd.Resolvable, for: Tuple do
   def resolve({func, left, right}, record) when is_atom(func) do
     left = Exd.Resolvable.resolve(left, record)
     right = Exd.Resolvable.resolve(right, record)
-    Exd.Plugin.__helper__({func, left, right})
+    Application.get_env(:exd, :plugin, Exd.Plugin).__helper__({func, left, right})
   end
+  def resolve(_, record), do: record
 end
 
 defimpl Exd.Resolvable, for: Any do

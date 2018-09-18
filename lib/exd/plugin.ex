@@ -17,6 +17,10 @@ defmodule Exd.Plugin do
   use Exd.Plugin.Integer
   use Exd.Plugin.Boolean
 
+  def load_plugin do
+    Application.get_env(:exd, :plugin, __MODULE__)
+  end
+
   def __helper__(expr) do
     raise ArgumentError, message: "No plugin matches expression: #{inspect expr}"
   end

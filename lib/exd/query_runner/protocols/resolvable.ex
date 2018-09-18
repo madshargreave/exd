@@ -25,10 +25,14 @@ defimpl Exd.Resolvable, for: BitString do
 end
 
 defimpl Exd.Resolvable, for: Tuple do
-  def resolve({func, left, right}, record) when is_atom(func) do
-    left = Exd.Resolvable.resolve(left, record)
-    right = Exd.Resolvable.resolve(right, record)
-    Application.get_env(:exd, :plugin, Exd.Plugin).__helper__({func, left, right})
+  def resolve(tuple, record) do
+    resolved =
+      tuple
+      |> Tuple.to_list
+      |> Enum.map(&Exd.Resolvable.resolve(&1, record))
+      |> List.to_tuple
+
+    Exd.Plugin.load_plugin().__helper__(resolved)
   end
   def resolve(_, record), do: record
 end

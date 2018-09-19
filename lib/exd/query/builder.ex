@@ -48,8 +48,11 @@ defmodule Exd.Query.Builder do
     selection
     |> Enum.reduce(%Query{query | select: selection}, fn {key, expr}, acc ->
       case expr do
-        {:unnest, _} ->
-          flatten(acc, acc.flatten ++ [key])
+        {:unnest, list} ->
+          selection_without_unnest = Map.put(selection, key, list)
+          acc
+          |> flatten(acc.flatten ++ [key])
+          |> select(selection_without_unnest)
         _ ->
           acc
       end

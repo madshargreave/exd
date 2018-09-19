@@ -1,31 +1,49 @@
 defmodule Exd.Plugin.String do
-  @moduledoc """
-  String helpers
-  """
+  @moduledoc false
 
   @doc false
   defmacro __using__(_opts) do
     quote do
-      import Exd.Plugin.Helpers
+      use Exd.Plugin.Adapter
       alias Exd.Plugin.String.Helpers, as: StringHelpers
 
-      defhelper {:replace, value, pattern, replacement} do
+      @impl true
+      def apply({:replace, value, pattern, replacement}) do
         StringHelpers.replace(value, pattern, replacement)
       end
 
-      defhelper {:regex, value, regex} do
+      @impl true
+      def apply({:interpolate, value, bindings}) do
+        StringHelpers.interpolate(value, bindings)
+      end
+
+      @impl true
+      def apply({:regex, value, regex}) do
         StringHelpers.regex(value, regex)
       end
 
-      defhelper {:trim, value} do
+      @impl true
+      def apply({:trim, value}) do
         StringHelpers.trim(value)
       end
 
-      defhelper {:downcase, value} do
+      @impl true
+      def apply({:downcase, value}) do
         StringHelpers.downcase(value)
       end
 
-      defhelper {:cast, value, type} do
+      @impl true
+      def apply({:upcase, value}) do
+        StringHelpers.upcase(value)
+      end
+
+      @impl true
+      def apply({:capitalize, value}) do
+        StringHelpers.capitalize(value)
+      end
+
+      @impl true
+      def apply({:cast, value, type}) do
         StringHelpers.cast(value, type)
       end
 

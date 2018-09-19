@@ -18,7 +18,7 @@ defmodule Exd.Repo do
   def run(query, opts \\ []) do
     query
     |> stream()
-    |> Stream.run
+    |> Enum.to_list
   end
 
   def start_link(query, opts \\ []) do

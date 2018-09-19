@@ -2,6 +2,7 @@ defmodule Exd.Runner.Select do
   @moduledoc """
   Select clause
   """
+  alias Exd.Resolvable
 
   @doc """
   Resolves select statement
@@ -14,13 +15,17 @@ defmodule Exd.Runner.Select do
   """
   def select(flow, selection) when is_map(selection) do
     flow
-      |> Flow.map(fn record ->
+    |> Flow.map(fn %Exd.Record{} = record ->
         selection
-        |> Enum.reduce(%{}, fn {key, path}, acc ->
-          resolved = Exd.Resolvable.resolve(path, record)
-          Map.put(acc, key, resolved)
+        |> Enum.reduce(%{}, fn {key, expr}, row ->
+          resolved =
+            case Exd.Resolvable.resolve(expr, record) do
+              {_key, resolved} -> resolved
+              resolved -> resolved
+            end
+          Map.put(row, key, resolved)
         end)
-      end)
+    end)
   end
 
   @doc """
@@ -45,5 +50,12 @@ defmodule Exd.Runner.Select do
       Exd.Resolvable.resolve(selection, record)
     end)
   end
+
+  # def select(flow, nil) do
+  #   flow
+  #   |> Flow.map(fn record ->
+  #     Map.merge(record.value, %{"_key" => record.key})
+  #   end)
+  # end
 
 end

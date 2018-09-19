@@ -9,6 +9,17 @@ defmodule Exd.Plugin.String.Helpers do
   end
 
   @doc """
+  Interpolates bindings into string
+  """
+  def interpolate(string, bindings) do
+    bindings
+    |> Enum.reduce(string, fn {key, value}, acc ->
+      {:ok, regex} = Regex.compile("\{\{#{key}\}\}")
+      String.replace(acc, regex, value)
+    end)
+  end
+
+  @doc """
   Capture and return group from string
   """
   def regex(string, %Regex{} = regex), do: do_regex(string, regex)
@@ -35,6 +46,20 @@ defmodule Exd.Plugin.String.Helpers do
   """
   def downcase(string) do
     String.downcase(string)
+  end
+
+  @doc """
+  It upcases string
+  """
+  def upcase(string) do
+    String.upcase(string)
+  end
+
+  @doc """
+  It capitalizes string
+  """
+  def capitalize(string) do
+    String.capitalize(string)
   end
 
   @doc """

@@ -32,9 +32,24 @@ defimpl Exd.Resolvable, for: Tuple do
       |> Enum.map(&Exd.Resolvable.resolve(&1, record))
       |> List.to_tuple
 
-    Exd.Plugin.load_plugin().__helper__(resolved)
+    Exd.Plugin.load_plugin().apply(resolved)
   end
   def resolve(_, record), do: record
+end
+
+defimpl Exd.Resolvable, for: List do
+  def resolve(list, record) do
+    result =
+      for element <- list do
+        case element do
+          {key, value} ->
+            {key, Exd.Resolvable.resolve(value, record)}
+          element ->
+            Exd.Resolvable.resolve(element, record)
+        end
+      end
+    result
+  end
 end
 
 defimpl Exd.Resolvable, for: Any do

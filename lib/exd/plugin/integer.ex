@@ -1,21 +1,28 @@
 defmodule Exd.Plugin.Integer do
   @moduledoc false
 
-  @doc false
   defmacro __using__(_opts) do
     quote do
-      import Exd.Plugin.Helpers
+      use Exd.Plugin.Adapter
 
-      defhelper {:add, left, right} do
+      @impl true
+      def apply({:add, left, right}) do
         left + right
       end
 
-      defhelper {:subtract, left, right} do
+      @impl true
+      def apply({:subtract, left, right}) do
         left - right
       end
 
-      defhelper {:multiply, left, right} do
+      @impl true
+      def apply({:multiply, left, right}) do
         left * right
+      end
+
+      @impl true
+      def apply({:divide, left, right}) do
+        left / right
       end
 
     end

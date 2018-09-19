@@ -3,7 +3,7 @@ defmodule Exd.Runner.Planner do
   Plans the execution of a query
   """
   alias Exd.Query
-  alias Exd.Runner.{From, Join, Where, Select, Into, Commit}
+  alias Exd.Runner.{From, Join, Where, Select, Flatten, Into, Commit}
 
   @doc """
   Plan query flow
@@ -15,6 +15,7 @@ defmodule Exd.Runner.Planner do
     |> plan_joins(query)
     |> plan_wheres(query)
     |> plan_select(query)
+    |> plan_flatten(query)
     |> plan_into(query)
   end
 
@@ -36,10 +37,16 @@ defmodule Exd.Runner.Planner do
     end)
   end
 
-  defp plan_select(flow, %Query{select: nil} = _query), do: flow
+  defp plan_select(flow, %Query{select: nil} = query), do: flow
   defp plan_select(flow, %Query{select: select} = _query) do
     Select.select(flow, select)
   end
+
+  defp plan_flatten(flow, %Query{select: nil} = _query), do: flow
+  defp plan_flatten(flow, %Query{select: select} = _query) do
+    Flatten.flatten(flow, select)
+  end
+
 
   defp plan_into(flow, %Query{into: nil} = _query), do: flow
   defp plan_into(flow, %Query{into: {namespace, sink}}) do

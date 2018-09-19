@@ -16,13 +16,32 @@ defmodule Exd.Plugin do
   use Exd.Plugin.String
   use Exd.Plugin.Integer
   use Exd.Plugin.Boolean
+  use Exd.Plugin.List
 
   def load_plugin do
-    Application.get_env(:exd, :plugin, __MODULE__)
+    Application.get_env(:exd, :plugin) || __MODULE__
   end
 
-  def __helper__(expr) do
+  def from(expr) do
     raise ArgumentError, message: "No plugin matches expression: #{inspect expr}"
+  end
+
+  def select(row, key, expr) do
+    raise ArgumentError, message: "No plugin matches expression: #{inspect expr}"
+  end
+
+  def apply(expr) do
+    raise ArgumentError, message: "No plugin matches expression: #{inspect expr}"
+  end
+
+  defmacro __using__(_opts) do
+    quote do
+      # Default plugins
+      use Exd.Plugin.String
+      use Exd.Plugin.Integer
+      use Exd.Plugin.Boolean
+      use Exd.Plugin.List
+    end
   end
 
 end

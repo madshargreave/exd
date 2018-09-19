@@ -6,6 +6,7 @@ defmodule Exd.MixProject do
       app: :exd,
       version: "0.1.20",
       elixir: "~> 1.7",
+      elixirc_paths: elixirc_paths(Mix.env),
       description: description(),
       package: package(),
       name: "Exd",

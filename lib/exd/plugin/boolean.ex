@@ -4,9 +4,10 @@ defmodule Exd.Plugin.Boolean do
   @doc false
   defmacro __using__(_opts) do
     quote do
-      import Exd.Plugin.Helpers
+      use Exd.Plugin.Adapter
 
-      defhelper {:if, predicate, then_branch, else_branch} do
+      @impl true
+      def apply({:if, predicate, then_branch, else_branch}) do
         if predicate, do: then_branch, else: else_branch
       end
 

@@ -12,6 +12,7 @@ defmodule Exd.Query do
             joins: [],
             select: nil,
             select_merge: nil,
+            flatten: [],
             where: [],
             or_where: [],
             into: nil,

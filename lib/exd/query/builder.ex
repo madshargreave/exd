@@ -44,8 +44,25 @@ defmodule Exd.Query.Builder do
   Set the select clause for query
   """
   @spec select(Query.t, map) :: Query.t
-  def select(query, selection) do
-    %Query{query | select: selection}
+  def select(query, selection) when is_map(selection) do
+    selection
+    |> Enum.reduce(%Query{query | select: selection}, fn {key, expr}, acc ->
+      case expr do
+        {:unnest, _} ->
+          flatten(acc, acc.flatten ++ [key])
+        _ ->
+          acc
+      end
+    end)
+  end
+  def select(query, selection), do: %Query{query | select: selection}
+
+  @doc """
+  Set the flatten options
+  """
+  @spec flatten(Query.t, [term]) :: Query.t
+  def flatten(query, fields) do
+    %Query{query | flatten: fields}
   end
 
   @doc """
@@ -53,7 +70,6 @@ defmodule Exd.Query.Builder do
   """
   @spec into(Query.t, term, keyword) :: Query.t
   def into(query, sink, opts \\ []) do
-    # intos = query.into ++ [{sink, opts}]
     %Query{query | into: {sink, opts}}
   end
 

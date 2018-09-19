@@ -42,9 +42,9 @@ defmodule Exd.Runner.Planner do
     Select.select(flow, select)
   end
 
-  defp plan_flatten(flow, %Query{select: nil} = _query), do: flow
-  defp plan_flatten(flow, %Query{select: select} = _query) do
-    Flatten.flatten(flow, select)
+  defp plan_flatten(flow, %Query{flatten: nil} = _query), do: flow
+  defp plan_flatten(flow, %Query{flatten: flatten} = _query) do
+    Flatten.flatten(flow, flatten)
   end
 
 

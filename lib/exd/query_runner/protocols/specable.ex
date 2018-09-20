@@ -42,17 +42,17 @@ end
 
 defimpl Exd.Specable, for: Exd.Query do
   def to_spec(query, subscription_opts) do
-    Exd.Runner.Planner.plan(query)
+    Exd.Runner.Planner.plan_query(query)
   end
 end
 
-# defimpl Exd.Specable, for: Tuple do
-#   def to_spec(func_and_args, subscription_opts) do
-#     func_and_args
-#     |> Exd.Resolvable.resolve(%Exd.Record{})
-#     |> Flow.from_enumerable
-#   end
-# end
+defimpl Exd.Specable, for: Tuple do
+  def to_spec(func_and_args, subscription_opts) do
+    func_and_args
+    |> Exd.Resolvable.resolve(%Exd.Record{})
+    |> Flow.from_enumerable
+  end
+end
 
 defimpl Exd.Specable, for: PID do
   def to_spec(pid, subscription_opts \\ []) do

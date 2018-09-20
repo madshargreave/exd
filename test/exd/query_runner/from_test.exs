@@ -25,7 +25,7 @@ defmodule Exd.Runner.FromTest do
           key: fn event -> Kernel.get_in(event, ["coins", "name"]) end
         )
         |> Query.select("coins")
-        |> Planner.plan()
+        |> Query.to_list
         |> Enum.sort
     end
 
@@ -50,47 +50,47 @@ defmodule Exd.Runner.FromTest do
         Query.new
         |> Query.from("coins", subquery)
         |> Query.select("coins")
-        |> Planner.plan()
+        |> Query.to_list
         |> Enum.sort
     end
 
-    defmodule DummyProducer do
-      use GenStage
+    # defmodule DummyProducer do
+    #   use GenStage
 
-      def start_link do
-        GenStage.start_link(__MODULE__, :ok)
-      end
+    #   def start_link do
+    #     GenStage.start_link(__MODULE__, :ok)
+    #   end
 
-      def notify(pid, message) do
-        GenStage.cast(pid, {:notify, message})
-      end
+    #   def notify(pid, message) do
+    #     GenStage.cast(pid, {:notify, message})
+    #   end
 
-      @impl true
-      def init(_) do
-        buffer = []
-        {:producer, buffer}
-      end
+    #   @impl true
+    #   def init(_) do
+    #     buffer = []
+    #     {:producer, buffer}
+    #   end
 
-      @impl true
-      def handle_demand(demand, state) do
-        {:noreply, [], state}
-      end
+    #   @impl true
+    #   def handle_demand(demand, state) do
+    #     {:noreply, [], state}
+    #   end
 
-      @impl true
-      def handle_cast({:notify, message}, state) do
-        {:noreply, [message], state}
-      end
+    #   @impl true
+    #   def handle_cast({:notify, message}, state) do
+    #     {:noreply, [message], state}
+    #   end
 
-    end
+    # end
 
-    test "it works with PIDs" do
-      {:ok, producer} = DummyProducer.start_link()
+    # test "it works with PIDs" do
+    #   {:ok, producer} = DummyProducer.start_link()
 
-      assert {:ok, pid} =
-        Query.new
-        |> Query.from("jobs", producer)
-        |> Query.select("jobs")
-        |> Repo.start_link
-    end
+    #   assert {:ok, pid} =
+    #     Query.new
+    #     |> Query.from("jobs", producer)
+    #     |> Query.select("jobs")
+    #     |> Repo.start_link
+    # end
   end
 end

@@ -9,7 +9,8 @@ defmodule Exd.Source.Function do
   use Exd.Source.Adapter
 
   defstruct [
-    fn: nil
+    fn: nil,
+    done: false
   ]
 
   @impl true
@@ -20,6 +21,12 @@ defmodule Exd.Source.Function do
         fn: function
       }
     }
+  end
+
+  def handle_from(demand, %{done: true} = _state), do: :done
+  def handle_from(demand, %{done: false, fn: func} = state) do
+    produced = func.(%{})
+    {:ok, produced, %__MODULE__{state | done: true}}
   end
 
   # @impl true

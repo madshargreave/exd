@@ -8,7 +8,7 @@ defmodule Exd.Runner.Flatten do
     |> Enum.reduce(flow, fn key, flow ->
       flow
       |> Flow.flat_map(fn record ->
-        for element <- Map.get(record, key), do: %{record | key => element}
+        for element <- Map.get(record.value, key), do: %Exd.Record{record | value: %{record.value | key => element}}
       end)
     end)
   end

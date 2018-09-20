@@ -11,7 +11,8 @@ defmodule Exd.Runner.Commit do
   def commit(flow) do
     flow
     |> Flow.each(fn record ->
-      Logger.info "Commit record with key: #{record.key}"
+      # Logger.info "Commit record with key: #{inspect record.key}"
+      send(record.__meta__.pid, {:done, record})
     end)
   end
 

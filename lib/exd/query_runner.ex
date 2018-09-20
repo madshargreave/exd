@@ -17,7 +17,7 @@ defmodule Exd.QueryRunner do
   """
   @spec stream(Query.queryable()) :: Flow.t()
   def stream(query) do
-    Planner.plan(query)
+    flow = Planner.plan(query)
   end
 
 end

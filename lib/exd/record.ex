@@ -10,11 +10,12 @@ defmodule Exd.Record do
   @type t :: %__MODULE__{key: key(), value: value()}
 
   @spec new(key(), value()) :: t()
-  def new(key, value) when is_binary(key) and not is_nil(value) do
+  def new(key, value, opts \\ []) when is_binary(key) and not is_nil(value) do
     %__MODULE__{
       key: key,
       value: value,
-      flag: nil
+      flag: nil,
+      __meta__: (for {key, value} <- opts, into: %{}, do: {key, value})
     }
   end
 

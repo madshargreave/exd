@@ -31,8 +31,7 @@ defmodule Exd.Runner.From do
     ]
 
     Exd.Specable.to_spec(specable, subscription_opts)
-    |> Flow.map(&wrap_in_namespace(&1, namespace))
-    |> Flow.map(&to_record(&1, key_fn))
+    |> Flow.map(&to_record(&1, namespace, key_fn))
     |> Flow.partition(
       stages: stages,
       min_demand: min_demand,
@@ -41,19 +40,19 @@ defmodule Exd.Runner.From do
     )
   end
 
-  defp wrap_in_namespace(event, namespace) do
-    %{ namespace => event }
+  defp to_record(%ExdRecord{} = record, namespace, _key_fn) do
+    ExdRecord.new(record.key, %{namespace => record.value}, pid: self())
   end
-
-  defp to_record(event, key_fn) do
-    key = key_fn.(event)
-    ExdRecord.new(key, event)
+  defp to_record(value, namespace, key_fn) do
+    key = key_fn.(%{namespace => value})
+    ExdRecord.new(key, %{namespace => value}, pid: self())
   end
 
   # Uses the sha256 hash of the record to generate a new key
   defp default_hash(record) do
     :crypto.hash(:sha256, inspect(record))
     |> Base.encode16
+    |> String.slice(0..16)
   end
 
 end

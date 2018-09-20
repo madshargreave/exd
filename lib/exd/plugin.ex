@@ -17,6 +17,7 @@ defmodule Exd.Plugin do
   use Exd.Plugin.Integer
   use Exd.Plugin.Boolean
   use Exd.Plugin.List
+  use Exd.Plugin.Fetch
 
   def load_plugin do
     Application.get_env(:exd, :plugin) || __MODULE__

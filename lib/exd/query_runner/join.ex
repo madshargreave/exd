@@ -2,6 +2,8 @@ defmodule Exd.Runner.Join do
   @moduledoc """
   From clause
   """
+  alias Exd.Query
+  alias Exd.Record
 
   @type option :: {:max_demand, integer()}
     | {:min_demand, integer()}
@@ -13,7 +15,7 @@ defmodule Exd.Runner.Join do
   Creates a new flow from source
   """
   @spec join(Flow.t, binary(), any(), options()) :: Flow.t
-  def join(flow, namespace, specable, opts \\ []) do
+  def join(flow, namespace, specable, opts \\ []) when is_function(specable) do
     max_demand = Keyword.get(opts, :max_demand, 1)
     min_demand = Keyword.get(opts, :min_demand, 0)
     stages = Keyword.get(opts, :stages, 1)
@@ -32,6 +34,14 @@ defmodule Exd.Runner.Join do
 
     flow
     |> Flow.through_specs(specs)
+  end
+
+  def join(flow, namespace, %Query{} = specable, opts) do
+    flow
+    |> Flow.map(fn record ->
+      result = Query.to_list(specable)
+      Record.put(record, namespace, result)
+    end)
   end
 
 end

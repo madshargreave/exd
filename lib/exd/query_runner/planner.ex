@@ -11,7 +11,19 @@ defmodule Exd.Runner.Planner do
   @spec plan(Query.t()) :: Flow.t()
   def plan(%Query{} = query) do
     query
-    |> plan_from
+    |> plan_query
+    |> plan_commit
+    |> plan_resolve
+  end
+
+  @doc """
+  Plans query flow
+  """
+  @spec plan_query(Query.t()) :: Flow.t()
+  def plan_query(%Query{} = query) do
+    flow = plan_from(query)
+
+    flow
     |> plan_joins(query)
     |> plan_wheres(query)
     |> plan_select(query)
@@ -46,10 +58,17 @@ defmodule Exd.Runner.Planner do
     Flatten.flatten(flow, flatten)
   end
 
-
   defp plan_into(flow, %Query{into: nil} = _query), do: flow
   defp plan_into(flow, %Query{into: {namespace, sink}}) do
     Into.into(flow, sink)
+  end
+
+  defp plan_commit(flow) do
+    Commit.commit(flow)
+  end
+
+  defp plan_resolve(flow) do
+    Flow.map(flow, &(&1.value))
   end
 
 end

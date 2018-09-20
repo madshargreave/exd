@@ -63,6 +63,16 @@ defmodule Exd.Runner.SelectTest do
         |> Planner.plan
         |> Enum.sort_by & elem(&1, 0)
     end
+
+    test "it works with lists of strings" do
+      assert [
+        %{"name" => "bitcoin", "price" => 1000}
+      ] =
+        base_query()
+        |> Query.select(["coins"])
+        |> Planner.plan
+        |> Enum.sort_by & &1["name"]
+    end
   end
 
   defp base_query do

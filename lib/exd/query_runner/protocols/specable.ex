@@ -3,7 +3,7 @@ defprotocol Exd.Specable do
   Transform Elixir primitive types into source and sink specs
   """
 
-  def to_spec(specable, subscription_opts \\ [])
+  def to_spec(specable, subscription_opts \\ [], env \\ %{})
 
 end
 
@@ -11,7 +11,7 @@ alias Exd.Source.Function, as: SourceFunction
 alias Exd.Source.List, as: SourceList
 
 defimpl Exd.Specable, for: List do
-  def to_spec(list, subscription_opts \\ []) do
+  def to_spec(list, subscription_opts \\ [], env \\ %{}) do
     adapter_spec = {
       SourceList,
         value: list
@@ -26,7 +26,7 @@ defimpl Exd.Specable, for: List do
 end
 
 defimpl Exd.Specable, for: Function do
-  def to_spec(func, subscription_opts \\ []) do
+  def to_spec(func, subscription_opts \\ [], env \\ %{}) do
     adapter_spec = {
       SourceFunction,
         fn: func
@@ -41,21 +41,22 @@ defimpl Exd.Specable, for: Function do
 end
 
 defimpl Exd.Specable, for: Exd.Query do
-  def to_spec(query, subscription_opts) do
+  def to_spec(query, subscription_opts, env \\ %{}) do
     Exd.Runner.Planner.plan_query(query)
   end
 end
 
 defimpl Exd.Specable, for: Tuple do
-  def to_spec(func_and_args, subscription_opts) do
+  def to_spec(func_and_args, subscription_opts, env \\ %{}) do
+    # IO.inspect {"SPEC", func_and_args, env}
     func_and_args
-    |> Exd.Resolvable.resolve(%Exd.Record{})
+    |> Exd.Resolvable.resolve(%Exd.Record{}, env)
     |> Flow.from_enumerable
   end
 end
 
 defimpl Exd.Specable, for: PID do
-  def to_spec(pid, subscription_opts \\ []) do
+  def to_spec(pid, subscription_opts \\ [], env \\ %{}) do
     Flow.from_stage(pid)
   end
 end

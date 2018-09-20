@@ -8,19 +8,19 @@ defmodule Exd.Runner.Select do
   Resolves select statement
   """
   @spec select(Flow.t, map() | tuple()) :: Flow.t
-  def select(flow, map_or_tuple)
+  def select(flow, map_or_tuple, env \\ %{})
 
   @doc """
   Selects map
   """
-  def select(flow, selection) when is_map(selection) do
+  def select(flow, selection, env) when is_map(selection) do
     flow
     |> Flow.map(fn %Exd.Record{} = record ->
       value =
         selection
         |> Enum.reduce(%{}, fn {key, expr}, row ->
           resolved =
-            case Exd.Resolvable.resolve(expr, record) do
+            case Exd.Resolvable.resolve(expr, record, env) do
               {_key, resolved} -> resolved
               resolved -> resolved
             end
@@ -33,7 +33,7 @@ defmodule Exd.Runner.Select do
   @doc """
   Selects tuple
   """
-  def select(flow, selection) when is_tuple(selection) do
+  def select(flow, selection, env) when is_tuple(selection) do
     flow
     |> Flow.map(fn record ->
       value =
@@ -49,7 +49,7 @@ defmodule Exd.Runner.Select do
     end)
   end
 
-  def select(flow, namespace) when is_binary(namespace) do
+  def select(flow, namespace, env) when is_binary(namespace) do
     flow
     |> Flow.map(fn record ->
       value = Exd.Resolvable.resolve(namespace, record)
@@ -57,7 +57,7 @@ defmodule Exd.Runner.Select do
     end)
   end
 
-  def select(flow, [first | _rest] = selection) when is_binary(first) do
+  def select(flow, [first | _rest] = selection, env) when is_binary(first) do
     flow
     |> Flow.map(fn record ->
       value =

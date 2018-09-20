@@ -16,7 +16,7 @@ defmodule Exd.Runner.From do
   Creates a new flow from source
   """
   @spec from(binary(), any(), options()) :: Flow.t
-  def from(namespace, specable, opts \\ []) do
+  def from(namespace, specable, opts \\ [], env \\ %{}) do
     max_demand = Keyword.get(opts, :max_demand, 1)
     min_demand = Keyword.get(opts, :min_demand, 0)
     stages = Keyword.get(opts, :stages, 1)
@@ -30,7 +30,7 @@ defmodule Exd.Runner.From do
       window: window
     ]
 
-    Exd.Specable.to_spec(specable, subscription_opts)
+    Exd.Specable.to_spec(specable, subscription_opts, env)
     |> Flow.map(&to_record(&1, namespace, key_fn))
     |> Flow.partition(
       stages: stages,

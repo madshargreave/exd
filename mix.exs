@@ -4,7 +4,7 @@ defmodule Exd.MixProject do
   def project do
     [
       app: :exd,
-      version: "0.1.23",
+      version: "0.1.24",
       elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env),
       description: description(),

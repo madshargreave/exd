@@ -4,6 +4,7 @@ defmodule Exd.Runner.Join do
   """
   alias Exd.Query
   alias Exd.Record
+  alias Exd.Runner.Planner
 
   @type option :: {:max_demand, integer()}
     | {:min_demand, integer()}
@@ -26,7 +27,6 @@ defmodule Exd.Runner.Join do
       stages: stages
     ]
 
-    # adapter_spec = Exd.Specable.to_spec(specable)
     adapter_spec = {Exd.Source.Function, fn: specable}
     source_opts = [adapter: adapter_spec, namespace: namespace]
     spec = {Exd.Mapper, source_opts}
@@ -38,9 +38,16 @@ defmodule Exd.Runner.Join do
 
   def join(flow, namespace, %Query{} = specable, opts) do
     flow
-    |> Flow.map(fn record ->
-      result = Query.to_list(specable)
-      Record.put(record, namespace, result)
+    |> Flow.flat_map(fn record ->
+      query =
+        opts
+        |> Enum.reduce(specable, fn {key, value}, acc ->
+          Query.set(acc, key, Exd.Resolvable.resolve(value, record))
+        end)
+
+        for result <- Query.to_list(query) do
+        Record.put(record, namespace, result)
+      end
     end)
   end
 

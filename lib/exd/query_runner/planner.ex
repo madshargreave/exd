@@ -31,8 +31,8 @@ defmodule Exd.Runner.Planner do
     |> plan_into(query)
   end
 
-  defp plan_from(%Query{from: {namespace, specable, opts}}) do
-    From.from(namespace, specable, opts)
+  defp plan_from(%Query{from: {namespace, specable, opts}, env: env} = query) do
+    From.from(namespace, specable, opts, env)
   end
 
   defp plan_joins(flow, %Query{joins: joins} = _query) do
@@ -50,8 +50,8 @@ defmodule Exd.Runner.Planner do
   end
 
   defp plan_select(flow, %Query{select: nil} = query), do: flow
-  defp plan_select(flow, %Query{select: select} = _query) do
-    Select.select(flow, select)
+  defp plan_select(flow, %Query{select: select, env: env} = query) do
+    Select.select(flow, select, env)
   end
 
   defp plan_flatten(flow, %Query{flatten: flatten} = _query) do

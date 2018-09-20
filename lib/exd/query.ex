@@ -16,7 +16,8 @@ defmodule Exd.Query do
             where: [],
             or_where: [],
             into: nil,
-            distinct: nil
+            distinct: nil,
+            env: %{}
 
   @typedoc "Query struct"
   @type t :: %__MODULE__{}
@@ -37,6 +38,7 @@ defmodule Exd.Query do
   @type select_expr :: map()
 
   defdelegate new, to: Builder
+  defdelegate set(query, key, value), to: Builder
   defdelegate from(query \\ %Query{}, namespace, specable, opts \\ []), to: Builder
   defdelegate join(query, namespace, specable, opts \\ []), to: Builder
   defdelegate where(query, field, relation, value), to: Builder

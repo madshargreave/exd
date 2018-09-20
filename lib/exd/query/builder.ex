@@ -76,4 +76,12 @@ defmodule Exd.Query.Builder do
     %Query{query | into: {sink, opts}}
   end
 
+  @doc """
+  Set the environment of the query
+  """
+  @spec set(Query.t, term, any) :: Query.t
+  def set(query, key, value) do
+    %Query{query | env: Map.put(query.env, key, value)}
+  end
+
 end

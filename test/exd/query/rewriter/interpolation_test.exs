@@ -10,18 +10,31 @@ defmodule Exd.Query.Rewriter.InterpolationTest do
   ]
 
   describe "rewriting" do
-    test "it works" do
-      assert %Query{
-        select: %{
-          "full_name" => {:interpolate, "'? ?'", ["people.first", "people.last"]}
-        }
-      } =
+    test "it works for strings" do
+      assert [
+        %{"full_name" => "jack doe"},
+        %{"full_name" => "john doe"}
+      ] ==
         Query.new
         |> Query.from("people", @people)
         |> Query.select(%{
-          "full_name" => "'{{people.first}} {{people.last}}'"
+          "full_name" => "'{{people.first_name}} {{people.last_name}}'"
         })
-        |> Rewriter.rewrite
+        |> Query.to_list
+    end
+
+    test "it works when passed args" do
+      assert [
+        %{"greeting" => "hello jack from mads"},
+        %{"greeting" => "hello john from mads"}
+      ] ==
+        Query.new
+        |> Query.set("sender_name", "mads")
+        |> Query.from("people", @people)
+        |> Query.select(%{
+          "greeting" => "'hello {{people.first_name}} from {{args.sender_name}}'"
+        })
+        |> Query.to_list
     end
   end
 

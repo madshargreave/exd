@@ -9,7 +9,8 @@ defmodule Exd.Repo do
   Returns a stream of sourced records
   """
   def stream(query, opts \\ []) do
-    QueryRunner.stream(query)
+    query
+    |> QueryRunner.stream
   end
 
   @doc """

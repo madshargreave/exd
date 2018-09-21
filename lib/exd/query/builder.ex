@@ -3,6 +3,7 @@ defmodule Exd.Query.Builder do
   Pipe API for constructing Exd.Query structs
   """
   alias Exd.Query
+  alias Exd.Query.Rewriter
 
   @doc """
   Create a new query
@@ -44,21 +45,10 @@ defmodule Exd.Query.Builder do
   Set the select clause for query
   """
   @spec select(Query.t, map) :: Query.t
-  def select(query, selection) when is_map(selection) do
-    selection
-    |> Enum.reduce(%Query{query | select: selection}, fn {key, expr}, acc ->
-      case expr do
-        {:unnest, list} ->
-          selection_without_unnest = Map.put(selection, key, list)
-          acc
-          |> flatten(acc.flatten ++ [key])
-          |> select(selection_without_unnest)
-        _ ->
-          acc
-      end
-    end)
+  def select(query, selection) do
+    %Query{query | select: selection}
+    |> Rewriter.rewrite
   end
-  def select(query, selection), do: %Query{query | select: selection}
 
   @doc """
   Set the flatten options

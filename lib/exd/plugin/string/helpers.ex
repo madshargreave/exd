@@ -11,11 +11,12 @@ defmodule Exd.Plugin.String.Helpers do
   @doc """
   Interpolates bindings into string
   """
+  def interpolate(string, binding) when is_binary(binding), do: interpolate(string, [binding])
   def interpolate(string, bindings) do
     bindings
-    |> Enum.reduce(string, fn {key, value}, acc ->
-      {:ok, regex} = Regex.compile("\{\{#{key}\}\}")
-      String.replace(acc, regex, value)
+    |> Enum.reduce(string, fn replacement, acc ->
+      acc
+      |> String.replace("?", replacement, global: false)
     end)
   end
 
@@ -65,10 +66,14 @@ defmodule Exd.Plugin.String.Helpers do
   @doc """
   It casts string to type
   """
+  def cast("", _type), do: nil
   def cast(string, type) do
     case type do
       :float -> String.to_float(string)
-      :integer -> String.to_integer(string)
+      :integer ->
+        string
+        |> String.replace(",", "")
+        |> String.to_integer
     end
   end
 

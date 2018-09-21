@@ -3,6 +3,7 @@ defmodule Exd.QueryRunner do
   Main flow coordinator
   """
   alias Exd.Query
+  alias Exd.Query.Rewriter
   alias Exd.Runner.Planner
 
   @doc """
@@ -17,7 +18,9 @@ defmodule Exd.QueryRunner do
   """
   @spec stream(Query.queryable()) :: Flow.t()
   def stream(query) do
-    flow = Planner.plan(query)
+    flow =
+      query
+      |> Planner.plan
   end
 
 end

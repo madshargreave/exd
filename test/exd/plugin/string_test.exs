@@ -9,8 +9,16 @@ defmodule Exd.Plugin.StringTest do
   end
 
   describe "interpolate/3" do
-    test "it interpolates strings" do
-      assert "hello mads" == Exd.Plugin.apply({:interpolate, "hello {{name}}", name: "mads"})
+    test "it works when replacements are given as a string" do
+      assert "hello mads" == Exd.Plugin.apply({:interpolate, "hello ?", "mads"})
+    end
+
+    test "it works when replacements are given as a list" do
+      assert "hello mads" == Exd.Plugin.apply({:interpolate, "hello ?", ["mads"]})
+    end
+
+    test "it works when with multiple replacements" do
+      assert "hello mads" == Exd.Plugin.apply({:interpolate, "? ?", ["hello", "mads"]})
     end
   end
 

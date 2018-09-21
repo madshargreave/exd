@@ -8,9 +8,9 @@ defmodule Exd.PluginTest do
   describe "from" do
     test "it generates records using plugin" do
       assert [
-        %{greeting: "hello Jack"},
-        %{greeting: "hello John"},
-        %{greeting: "hello Mads"}
+        %{greeting: "hello jack"},
+        %{greeting: "hello john"},
+        %{greeting: "hello mads"}
       ] ==
         Query.new
         |> Query.from(
@@ -22,7 +22,7 @@ defmodule Exd.PluginTest do
           ]
         )
         |> Query.select(%{
-          greeting: {:interpolate, "'hello {{name}}'", name: {:capitalize, "people.name"}}
+          greeting: {:interpolate, "'hello ?'", "people.name"}
         })
         |> Repo.run
     end

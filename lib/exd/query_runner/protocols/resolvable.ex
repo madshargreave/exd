@@ -35,7 +35,7 @@ defimpl Exd.Resolvable, for: Tuple do
       |> Enum.map(&Exd.Resolvable.resolve(&1, record, env))
       |> List.to_tuple
 
-    IO.inspect {resolved, Exd.Plugin.resolve(resolved)}
+    # IO.inspect {resolved, Exd.Plugin.resolve(resolved)}
     {:ok, module} = Exd.Plugin.resolve(resolved)
     # IO.inspect resolved
     {:ok, calls} = module.handle_parse(resolved)

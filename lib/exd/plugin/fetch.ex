@@ -88,8 +88,8 @@ defmodule Exd.Plugin.Fetch do
   @impl true
   def handle_eval(calls, state) do
     urls = for {url, opts} <- calls, do: url
-    produced = Client.fetch(state.client, urls)
-    {:ok, produced}
+    # produced = Client.fetch(state.client, urls)
+    {:ok, []}
   end
 
   @impl true

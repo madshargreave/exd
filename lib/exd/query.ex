@@ -37,16 +37,16 @@ defmodule Exd.Query do
   @typedoc "Select expression"
   @type select_expr :: map()
 
-  defdelegate new, to: Builder
-  defdelegate set(query, key, value), to: Builder
-  defdelegate from(query \\ %Query{}, namespace, specable, opts \\ []), to: Builder
-  defdelegate join(query, namespace, specable, opts \\ []), to: Builder
-  defdelegate where(query, field, relation, value), to: Builder
-  defdelegate select(query, selection), to: Builder
-  defdelegate into(query, sink, opts \\ []), to: Builder
-  defdelegate flatten(query, fields), to: Builder
-  defdelegate to_list(query), to: Repo, as: :run
+  # defdelegate new, to: Builder
+  # defdelegate set(query, key, value), to: Builder
+  # defdelegate from(query \\ %Query{}, namespace, specable, opts \\ []), to: Builder
+  # defdelegate join(query, namespace, specable, opts \\ []), to: Builder
+  # defdelegate where(query, field, relation, value), to: Builder
+  # defdelegate select(query, selection), to: Builder
+  # defdelegate into(query, sink, opts \\ []), to: Builder
+  # defdelegate flatten(query, fields), to: Builder
+  # defdelegate to_list(query), to: Repo, as: :run
   defdelegate first(query), to: Repo, as: :first
-  defdelegate validate(queryable), to: Validator
+  # defdelegate validate(queryable), to: Validator
 
 end

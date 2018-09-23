@@ -1,77 +1,97 @@
 defmodule Exd.Query.Builder do
   @moduledoc """
-  Pipe API for constructing Exd.Query structs
+  API for constructing queries using macros
   """
   alias Exd.Query
-  alias Exd.Query.Rewriter
+  alias Exd.Query.Builder.{From, Select}
 
-  @doc """
-  Create a new query
-  """
-  @spec new :: Query.t
-  def new do
-    %Query{}
+  @spec escape_binding(list) :: {Macro.t | Exd.Query.t, Keyword.t}
+  def escape_binding(binding) do
+    escape_bind(binding)
   end
 
-  @doc """
-  Set the from clause for query
-  """
-  @spec from(Query.t, binary, any) :: Query.t
-  def from(query \\ %Query{}, namespace, specable, opts \\ []) do
-    %Query{query | from: {namespace, specable, opts}}
-  end
+  defp escape_bind({var, _, _} = tuple),
+    do: Atom.to_string(var)
 
   @doc """
-  Add a join clause to query
+  Creates a query
+
+  ## Keywords example
+
+      from(n in [1, 2, 3], select: n)
   """
-  @spec join(Query.t, binary, any, keyword) :: Query.t
-  def join(query, namespace, specable, opts \\ []) do
-    joins = query.joins ++ [%{
-      from: {namespace, specable, opts}
-    }]
-    %Query{query | joins: joins}
+  defmacro from(expr, opts \\ []) do
+    unless Keyword.keyword?(opts) do
+      raise ArgumentError, "second argument to `from` must be a compile time keyword list"
+    end
+    {query, binds} = From.build(expr, __CALLER__)
+    from(opts, __CALLER__, query, binds)
   end
 
-  @doc """
-  Add a where clause to query
-  """
-  @spec where(Query.t, binary, term, any) :: Query.t
-  def where(query, field, relation, value) do
-    wheres = [{field, relation, value} | query.where]
-    %Query{query | where: wheres}
+  @binds ~w(where or_where select select_merge)a
+  @functions ~w(add subtract multiply divide interpolate regex replace range unnest)a
+
+  defp from([{type, expr} | rest], env, query, binds) when type in @binds do
+    query =
+      query
+      |> Select.build(binds, expr, env)
+      |> IO.inspect
+
+    from(rest, env, query, binds)
   end
 
-  @doc """
-  Set the select clause for query
-  """
-  @spec select(Query.t, map) :: Query.t
-  def select(query, selection) do
-    %Query{query | select: selection}
-    |> Rewriter.rewrite
+  defp from([], _env, quoted, _binds) do
+    Macro.escape(quoted)
   end
 
-  @doc """
-  Set the flatten options
-  """
-  @spec flatten(Query.t, [term]) :: Query.t
-  def flatten(query, fields) do
-    %Query{query | flatten: fields}
-  end
+  # def unquote(:where, {operator, _, [{binding_and_attr, _, _}, value]}, query) do
+  #   binding = Exd.Query.Builder.unquote_binding(binding_and_attr)
+  #   Query.where(query, binding, operator, value)
+  # end
 
-  @doc """
-  Set the select clause for query
-  """
-  @spec into(Query.t, term, keyword) :: Query.t
-  def into(query, sink, opts \\ []) do
-    %Query{query | into: {sink, opts}}
-  end
+  # def unquote(:select, expr, query) do
+  #   %Query{query | select: Exd.Query.Builder.unquote_literal(expr)}
+  # end
 
-  @doc """
-  Set the environment of the query
-  """
-  @spec set(Query.t, term, any) :: Query.t
-  def set(query, key, value) do
-    %Query{query | env: Map.put(query.env, key, value)}
-  end
+  # def unquote_literal({:%{}, _, args}) do
+  #   for {key, value} <- args, into: %{}, do: {key, unquote_literal(value)}
+  # end
+  # def unquote_literal({:{}, _, args} = expr) do
+  #   List.to_tuple(args)
+  # end
+  # def unquote_literal({binding, _, [func]} = expr) when binding in @functions do
+  #   {unquote_literal(binding), unquote_literal(func)}
+  # end
+  # def unquote_literal({binding, _, [func, arg1]}) when binding in @functions do
+  #   {binding, unquote_literal(func), unquote_literal(arg1)}
+  # end
+  # def unquote_literal({binding, _, [func, arg1, arg2]}) when binding in @functions do
+  #   {binding, unquote_literal(func), unquote_literal(arg1), unquote_literal(arg2)}
+  # end
+  # def unquote_literal({:., _, [left, right]}), do: "#{unquote_literal(left)}.#{unquote_literal(right)}"
+  # def unquote_literal({:sigil_r, _, [{:<<>>, _, [regex]}, []]}) do
+  #   Regex.compile!(regex)
+  # end
+  # def unquote_literal({binding, _, nil}) when is_atom(binding), do: Atom.to_string(binding)
+  # def unquote_literal({binding, _, _}) when is_tuple(binding), do: unquote_literal(binding)
+  # def unquote_literal(exprs) when is_list(exprs), do: for expr <- exprs, do: unquote_literal(expr)
+  # def unquote_literal(expr) when is_binary(expr), do: "'#{expr}'"
+  # def unquote_literal(expr) do
+  #   expr
+  # end
+
+  # def unquote_binding({:., _, [{binding, _, _}, attr]}) do
+  #   "#{binding}.#{attr}"
+  # end
+
+  # def quote_expr(expr) when is_tuple(expr) do
+  #   expr
+  #   |> Tuple.to_list
+  #   |> Enum.map(fn value ->
+  #       if is_binary(value), do: "'#{value}'", else: value
+  #   end)
+  #   |> List.to_tuple
+  # end
+  # def quote_expr(expr), do: expr
 
 end

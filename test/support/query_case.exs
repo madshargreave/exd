@@ -5,7 +5,7 @@ defmodule Exd.QueryCase do
   defmacro __using__(opts) do
     quote do
       use ExUnit.Case
-      import Exd.Query.API
+      import Exd.Query.Builder
     end
   end
 

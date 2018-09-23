@@ -48,7 +48,6 @@ end
 
 defimpl Exd.Specable, for: Tuple do
   def to_spec(func_and_args, subscription_opts, env \\ %{}) do
-    # IO.inspect {"SPEC", func_and_args, env}
     func_and_args
     |> Exd.Resolvable.resolve(%Exd.Record{}, env)
     |> Flow.from_enumerable

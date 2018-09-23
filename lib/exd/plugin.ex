@@ -1,47 +1,81 @@
 defmodule Exd.Plugin do
-  @moduledoc """
-  Defines helpers from both built-in and external Exd plugins
+  @moduledoc false
+  alias Exd.Plugin.String.{
+    Capitalize,
+    Cast,
+    Downcase,
+    Upcase,
+    Interpolate,
+    Regex,
+    Replace,
+    Trim
+  }
+  alias Exd.Plugin.List.Range
+  alias Exd.Plugin.Fetch
 
-  ## Usage
-    # inside config.exs
-    config :exd,
-      plugins: [
-        Exd.Plugin.HTML,
-        Exd.Plugin.XML
-      ]
+  # A list of standard plugins
+  @default_plugins [
+    # Strings
+    Capitalize,
+    Cast,
+    Downcase,
+    Upcase,
+    Interpolate,
+    Regex,
+    Replace,
+    Trim,
+    # List
+    Range,
+    # Fetch
+    Fetch,
+  ]
+
+  @loaded_plugins @default_plugins ++ Application.get_env(:exd, :plugins, [])
+
+  @doc """
+  Initializes the state of the plugin
   """
-  require Logger
+  @callback init(tuple()) :: {:ok, any()}
 
-  # Default plugins
-  use Exd.Plugin.String
-  use Exd.Plugin.Integer
-  use Exd.Plugin.Boolean
-  use Exd.Plugin.List
-  use Exd.Plugin.Fetch
+  @doc """
+  Transforms a query expresion into a struct
+  """
+  @callback handle_parse(tuple()) :: {:ok, any()} | :ignore
 
-  def load_plugin do
-    Application.get_env(:exd, :plugin) || __MODULE__
-  end
+  @doc """
+  Evaluates a batch of the transformed structs
+  """
+  @callback handle_eval(any(), any()) :: {:ok, any()} | :error
 
-  def from(expr) do
-    raise ArgumentError, message: "No plugin matches expression: #{inspect expr}"
-  end
-
-  def select(row, key, expr) do
-    raise ArgumentError, message: "No plugin matches expression: #{inspect expr}"
-  end
-
-  def apply(expr) do
-    raise ArgumentError, message: "No plugin matches expression: #{inspect expr}"
-  end
-
+  @doc false
   defmacro __using__(_opts) do
     quote do
-      # Default plugins
-      use Exd.Plugin.String
-      use Exd.Plugin.Integer
-      use Exd.Plugin.Boolean
-      use Exd.Plugin.List
+      @behaviour Exd.Plugin
+      @before_compile Exd.Plugin
+    end
+  end
+
+  defmacro __before_compile__(_env) do
+    quote do
+      def match?(expr) do
+        case __MODULE__.handle_parse(expr) do
+          {:ok, _} -> true
+          _ -> false
+        end
+      end
+      def handle_parse(_) do
+        :ignore
+      end
+    end
+  end
+
+  @doc """
+  Resolves the plugin that handles a particular expression
+  """
+  def resolve(expr) do
+    case Enum.find(@loaded_plugins, &(&1.match?(expr))) do
+      nil -> :error
+      module -> {:ok, module}
     end
   end
 

@@ -38,12 +38,15 @@ defmodule Exd.Runner.Select do
     |> Flow.map(fn record ->
       value =
         selection
-        |> Tuple.to_list
-        |> Enum.map(fn path ->
-          resolved = Exd.Resolvable.resolve(path, record)
-          resolved
-        end)
-        |> List.to_tuple
+        # |> Tuple.to_list
+        # |> Enum.map(fn path ->
+        #   resolved = Exd.Resolvable.resolve(path, record)
+        #   resolved
+        # end)
+        # |> List.to_tuple
+        # |> IO.inspect
+        |> Exd.Resolvable.resolve(record)
+        # |> IO.inspect
 
       %Exd.Record{record | value: value}
     end)

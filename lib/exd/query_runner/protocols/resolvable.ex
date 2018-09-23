@@ -26,7 +26,6 @@ end
 
 defimpl Exd.Resolvable, for: Tuple do
   def resolve({:arg, reference_or_literal}, record, env \\ %{}) do
-    # IO.inspect {"111111", reference_or_literal, env}
     Map.fetch!(env, reference_or_literal)
   end
   def resolve(tuple, record, env) do
@@ -36,7 +35,12 @@ defimpl Exd.Resolvable, for: Tuple do
       |> Enum.map(&Exd.Resolvable.resolve(&1, record, env))
       |> List.to_tuple
 
-    Exd.Plugin.load_plugin().apply(resolved)
+    IO.inspect {resolved, Exd.Plugin.resolve(resolved)}
+    {:ok, module} = Exd.Plugin.resolve(resolved)
+    # IO.inspect resolved
+    {:ok, calls} = module.handle_parse(resolved)
+    {:ok, [result]} = module.handle_eval([calls])
+    result
   end
   def resolve(_, record, env), do: record
 end

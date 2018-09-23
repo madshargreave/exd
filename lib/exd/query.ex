@@ -46,6 +46,7 @@ defmodule Exd.Query do
   defdelegate into(query, sink, opts \\ []), to: Builder
   defdelegate flatten(query, fields), to: Builder
   defdelegate to_list(query), to: Repo, as: :run
+  defdelegate first(query), to: Repo, as: :first
   defdelegate validate(queryable), to: Validator
 
 end

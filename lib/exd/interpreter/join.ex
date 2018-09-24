@@ -1,10 +1,10 @@
-defmodule Exd.Runner.Join do
+defmodule Exd.Interpreter.Join do
   @moduledoc """
   From clause
   """
   alias Exd.Query
   alias Exd.Record
-  alias Exd.Runner.Planner
+  alias Exd.Interpreter.Planner
 
   @type option :: {:max_demand, integer()}
     | {:min_demand, integer()}

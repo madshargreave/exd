@@ -28,7 +28,7 @@ defmodule Exd.Query.Builder.From do
 
   """
   def build(query, env) do
-    {binding, queryable} = escape(query) |> IO.inspect
+    {binding, queryable} = escape(query)
     {%Exd.Query{from: {binding, queryable, []}}, binding}
   end
 

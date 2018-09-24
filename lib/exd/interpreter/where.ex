@@ -1,4 +1,4 @@
-defmodule Exd.Runner.Where do
+defmodule Exd.Interpreter.Where do
   @moduledoc """
   Where clause
   """

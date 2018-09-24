@@ -1,4 +1,4 @@
-defmodule Exd.Runner.Flatten do
+defmodule Exd.Interpreter.Flatten do
   @moduledoc """
   Flattens a list into a stream of rows
   """

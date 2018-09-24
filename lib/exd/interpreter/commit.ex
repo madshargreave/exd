@@ -1,4 +1,4 @@
-defmodule Exd.Runner.Commit do
+defmodule Exd.Interpreter.Commit do
   @moduledoc """
   Select clause
   """

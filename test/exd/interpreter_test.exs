@@ -1,7 +1,7 @@
-# defmodule Exd.QueryRunnerTest do
+# defmodule Exd.InterpreterTest do
 #   use ExUnit.Case
 
-#   alias Exd.QueryRunner
+#   alias Exd.Interpreter
 #   alias Exd.Query
 
 #   describe "stream/1" do
@@ -21,7 +21,7 @@
 #           ]
 #         )
 #         |> Query.select({"coins.name", "coins.symbol"})
-#         |> QueryRunner.stream
+#         |> Interpreter.stream
 #         |> Enum.to_list
 #     end
 
@@ -57,7 +57,7 @@
 #           "symbol" => "outer.symbol",
 #           "marketcap" => "outer.marketcap"
 #         })
-#         |> QueryRunner.stream
+#         |> Interpreter.stream
 #         |> Enum.to_list
 #     end
 
@@ -105,7 +105,7 @@
 #           "symbol" => "outer.symbol",
 #           "marketcap" => "outer.marketcap"
 #         })
-#         |> QueryRunner.stream
+#         |> Interpreter.stream
 #         |> Enum.sort_by & &1["marketcap"], &>/2
 #     end
 #   end

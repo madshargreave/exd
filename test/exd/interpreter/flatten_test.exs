@@ -1,4 +1,4 @@
-# defmodule Exd.Runner.FlattenTest do
+# defmodule Exd.Interpreter.FlattenTest do
 #   use Exd.PluginCase,
 #     plugin: Exd.Plugin.List
 

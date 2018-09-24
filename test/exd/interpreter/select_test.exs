@@ -1,8 +1,8 @@
-# defmodule Exd.Runner.SelectTest do
+# defmodule Exd.Interpreter.SelectTest do
 #   use ExUnit.Case
 
 #   alias Exd.{Query, Record}
-#   alias Exd.Runner.Planner
+#   alias Exd.Interpreter.Planner
 #   alias Exd.Record
 
 #   describe "select/2" do

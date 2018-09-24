@@ -1,44 +1,64 @@
-# defmodule Exd.Plugin.FetchTest do
-#   use Exd.QueryCase
-#   alias Exd.Repo
+defmodule Exd.Plugin.FetchTest do
+  use Exd.QueryCase
+  alias Exd.Repo
 
-#   describe "fetch/1" do
-#     test "it fetches pages" do
-#       assert %{
-#         "status" => 200,
-#         "body" => _body
-#       } =
-#         Repo.first(
-#           from b in {:fetch, "https://coinmarketcap.com"},
-#           where: b.status == 200,
-#           select: b
-#         )
-#     end
+  describe "fetch/1" do
+    # test "it fetches pages" do
+    #   assert %{
+    #     "status" => 200,
+    #     "body" => _body
+    #   } =
+    #     Repo.first(
+    #       from b in {:fetch, "https://coinmarketcap.com"},
+    #       where: b.status == 200,
+    #       select: html_parse(b)
+    #     )
+    # end
 
-#     test "it works with joins" do
-#       details =
-#         from r in {:fetch, interpolate("https://coinmarketcap.com/currencies/?", args.symbol)},
-#         where: r.status == 200,
-#         select: html_parse(r.body)
+    # test "it works with piping" do
+    #   overview =
+    #     from r in fetch("https://coinmarketcap.com"),
+    #     where: r.status == 200,
+    #     select: %{
+    #       row: unnest(html_parse_list(r.body, "table#currencies > tbody > tr"))
+    #     }
 
-#       assert %{
-#         "status" => 200,
-#         "body" => _body
-#       } =
-#         Repo.first(
-#           from symbol in ["bitcoin", "etheruem", "ripple"],
-#           join: details, on: details.symbol = symbol,
-#           where: details.status == 200,
-#           select: %{
-#             symbol: s,
-#             name: html_parse_text(details.body, ".container-name"),
-#             price: html_parse_text(details.body, ".container-price"),
-#             marketcap: html_parse_text(details.body, ".container-marketcap"),
-#             twitter_followers: html_parse_text(details.body, ".stats .twitter-followers"),
-#             reddit_subs: html_parse_text(details.body, ".stats .reddit-subs")
-#           }
-#         )
-#     end
-#   end
+    #   coins =
+    #     from o in overview,
+    #     where: o.marketcap > 100_000_000,
+    #     select: %{
+    #       name: html_parse_text(o.row, ".container-name"),
+    #       href: html_parse_attr(o.row, "href", ".container-name"),
+    #       symbol: html_parse_text(o.row, ".container-symbol"),
+    #       price: html_parse_float(o.row, ".container-price"),
+    #       marketcap: html_parse_float(o.row, ".container-marketcap"),
+    #       volume: html_parse_float(o.row, ".container-volume")
+    #     }
 
-# end
+    #   detail =
+    #     from r in fetch(
+    #       interpolate("https://coinmarketcap.com/currencies/?", args.symbol),
+    #       retries: 3,
+    #       timeout: 5000
+    #     ),
+    #     where: r.status == 200,
+    #     select: %{
+    #       symbol: html_parse_text(l.body, ".container-symbol"),
+    #       explorer: html_parse_attr(l.body, "href", ".container-explorer"),
+    #       website: html_parse_attr(l.body, "href", ".container-website"),
+    #       forum: html_parse_attr(l.body, "href", ".container-forum"),
+    #       twitter_followers: html_parse_attr(l.body, "href", ".container-twitter-followers"),
+    #       reddit_subs: html_parse_attr(l.body, "href", ".container-reddit-subs")
+    #     }
+
+    #   results =
+    #     Repo.all(
+    #       from c in coins,
+    #       join: d in details, on: d.symbol = c.symbol,
+    #       where: d.twitter_followers > 1000,
+    #       select: [c, d]
+    #     )
+    # end
+  end
+
+end

@@ -1,10 +1,10 @@
-defmodule Exd.QueryRunner do
+defmodule Exd.Interpreter do
   @moduledoc """
   Main flow coordinator
   """
   alias Exd.Query
   alias Exd.Query.Rewriter
-  alias Exd.Runner.Planner
+  alias Exd.Interpreter.Planner
 
   @doc """
   Runs source flow
@@ -12,7 +12,7 @@ defmodule Exd.QueryRunner do
   ## Example
 
       Exd.Query{from: {"people", Person}, select: "people.name"}
-      |> Exd.QueryRunner.stream(query)
+      |> Exd.Interpreter.stream(query)
       |> Enum.to_list
       ["mads", "jack"]
   """

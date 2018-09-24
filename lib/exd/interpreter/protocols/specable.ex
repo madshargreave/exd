@@ -42,7 +42,7 @@ end
 
 defimpl Exd.Specable, for: Exd.Query do
   def to_spec(query, subscription_opts, env \\ %{}) do
-    Exd.Runner.Planner.plan_query(query)
+    Exd.Interpreter.Planner.plan_query(query)
   end
 end
 

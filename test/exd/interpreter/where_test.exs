@@ -1,8 +1,8 @@
-# defmodule Exd.Runner.WhereTest do
+# defmodule Exd.Interpreter.WhereTest do
 #   use ExUnit.Case
 
 #   alias Exd.{Query, Record}
-#   alias Exd.Runner.Planner
+#   alias Exd.Interpreter.Planner
 #   alias Exd.Record
 
 #   describe "where/3" do

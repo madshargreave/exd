@@ -1,4 +1,4 @@
-# defmodule Exd.Runner.EnvTest do
+# defmodule Exd.Interpreter.EnvTest do
 #   use Exd.PluginCase,
 #     plugin: Exd.Plugin.List
 

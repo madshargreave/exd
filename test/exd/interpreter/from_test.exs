@@ -1,9 +1,9 @@
-# defmodule Exd.Runner.FromTest do
+# defmodule Exd.Interpreter.FromTest do
 #   use ExUnit.Case
 
 #   alias Exd.{Repo, Query, Record}
-#   alias Exd.Runner.Planner
-#   alias Exd.Runner.From
+#   alias Exd.Interpreter.Planner
+#   alias Exd.Interpreter.From
 #   alias Exd.Source.List, as: ListSource
 
 #   describe "from/2" do

@@ -1,4 +1,4 @@
-defmodule Exd.Runner.Into do
+defmodule Exd.Interpreter.Into do
   @moduledoc """
   Select clause
   """

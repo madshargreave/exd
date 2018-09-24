@@ -3,14 +3,14 @@ defmodule Exd.Repo do
   @moduledoc """
   Repository for sources
   """
-  alias Exd.QueryRunner
+  alias Exd.Interpreter
 
   @doc """
   Returns a stream of sourced records
   """
   def stream(query, opts \\ []) do
     query
-    |> QueryRunner.stream
+    |> Interpreter.stream
   end
 
   @doc """

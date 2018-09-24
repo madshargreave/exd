@@ -1,9 +1,9 @@
-defmodule Exd.Runner.Planner do
+defmodule Exd.Interpreter.Planner do
   @moduledoc """
   Plans the execution of a query
   """
   alias Exd.Query
-  alias Exd.Runner.{From, Join, Where, Select, Flatten, Into, Commit}
+  alias Exd.Interpreter.{From, Join, Where, Select, Flatten, Into, Commit}
 
   @doc """
   Plan query flow

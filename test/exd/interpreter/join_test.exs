@@ -1,8 +1,8 @@
-# defmodule Exd.Runner.JoinTest do
+# defmodule Exd.Interpreter.JoinTest do
 #   use ExUnit.Case
 
 #   alias Exd.{Query, Record}
-#   alias Exd.Runner.Planner
+#   alias Exd.Interpreter.Planner
 #   alias Exd.Record
 
 #   describe "join/3" do

@@ -3,10 +3,18 @@ defmodule Exd.Query.BuilderTest do
   import Exd.Query.Builder
 
   describe "from/2" do
-    test "it works" do
+    test "it for lists" do
       assert %Exd.Query{
         from: {"numbers", [1, 2, 3], []}
-      } == from(numbers in [1, 2, 3])
+      } ==
+        from numbers in [1, 2, 3]
+    end
+
+    test "it works for expressions" do
+      assert %Exd.Query{
+        from: {"numbers", {:fetch, "'https://coinmarketcap.com'"}, []}
+      } ==
+        from numbers in fetch("https://coinmarketcap.com")
     end
   end
 

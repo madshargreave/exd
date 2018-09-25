@@ -8,8 +8,8 @@ defmodule Exd.Plugin.List.RangeTest do
         [0, 1, 2]
       ] ==
         Repo.all(
-          from range in {:range, 0, 2},
-          select: range
+          from r in range(0, 2),
+          select: r
         )
     end
   end

@@ -52,6 +52,12 @@ defmodule Exd.Plugin do
     quote do
       @behaviour Exd.Plugin
       @before_compile Exd.Plugin
+
+      def init(_) do
+        {:ok, %{}}
+      end
+
+      defoverridable init: 1
     end
   end
 
@@ -73,6 +79,7 @@ defmodule Exd.Plugin do
   Resolves the plugin that handles a particular expression
   """
   def resolve(expr) do
+    # IO.inspect {expr}
     case Enum.find(@loaded_plugins, &(&1.match?(expr))) do
       nil -> :error
       module -> {:ok, module}

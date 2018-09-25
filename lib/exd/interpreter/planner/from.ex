@@ -12,6 +12,10 @@ defmodule Exd.Interpreter.From do
 
   @type options :: [option]
 
+  def from(namespace) do
+
+  end
+
   @doc """
   Creates a new flow from source
   """

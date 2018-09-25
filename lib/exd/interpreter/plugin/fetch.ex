@@ -69,13 +69,7 @@ defmodule Exd.Plugin.Fetch do
 
   @impl true
   def init(opts \\ []) do
-    client =
-      Client.new(
-        concurrency: Keyword.get(opts, :concurrency, @default_concurrency),
-        retries: Keyword.get(opts, :retries, @default_retries),
-        timeout: Keyword.get(opts, :timeout, @default_timeout)
-      )
-
+    client = get_client(opts)
     {:ok, %{client: client}}
   end
 
@@ -86,15 +80,24 @@ defmodule Exd.Plugin.Fetch do
   end
 
   @impl true
-  def handle_eval(calls, state) do
+  def handle_eval(calls) do
+    client = get_client()
     urls = for {url, opts} <- calls, do: url
-    # produced = Client.fetch(state.client, urls)
-    {:ok, []}
+    produced = Client.fetch(client, urls)
+    {:ok, [produced]}
   end
 
   @impl true
   def handle_shutdown(state) do
     {:ok, state}
+  end
+
+  defp get_client(opts \\ []) do
+    Client.new(
+      concurrency: Keyword.get(opts, :concurrency, @default_concurrency),
+      retries: Keyword.get(opts, :retries, @default_retries),
+      timeout: Keyword.get(opts, :timeout, @default_timeout)
+    )
   end
 
 end

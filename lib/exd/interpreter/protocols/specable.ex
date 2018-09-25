@@ -48,9 +48,15 @@ end
 
 defimpl Exd.Specable, for: Tuple do
   def to_spec(func_and_args, subscription_opts, env \\ %{}) do
-    func_and_args
-    |> Exd.Resolvable.resolve(%Exd.Record{}, env)
+    Exd.Resolvable.resolve(func_and_args, env)
     |> Flow.from_enumerable
+    # with {:ok, module} <- Exd.Plugin.resolve(func_and_args),
+        #  {:ok, invocation} <- module.handle_parse(func_and_args),
+        #  invocation = Exd.Resolvable.resolve(invocation, %Exd.Record{}, env),
+        #  IO.inspect(invocation),
+        #  {:ok, produced} <- module.handle_eval([invocation]) do
+      # Flow.from_enumerables(produced)
+    # end
   end
 end
 

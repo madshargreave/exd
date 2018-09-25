@@ -2,18 +2,36 @@ defmodule Exd.Plugin.FetchTest do
   use Exd.QueryCase
   alias Exd.Repo
 
+  # def get(symbol) do
+  #   opts = [{:symbol, key: symbol, ttl: 5000}]
+
+  #   Repo.first(
+  #     from b in fetch(interpolate("https://coinmarketcap.com/currencies/?", ^symbol)),
+  #     select: %{
+  #       name: html_parse_text(b.body, ".coin-name"),
+  #       symbol: html_parse_text(b.body, ".coin-symbol"),
+  #       price: html_parse_text(b.body, ".coin-price"),
+  #       marketcap: html_parse_text(b.body, ".coin-marketcap"),
+  #       volume: html_parse_text(b.body, ".coin-volume")
+  #     },
+  #     opts
+  #   )
+  # end
+
   describe "fetch/1" do
-    # test "it fetches pages" do
-    #   assert %{
-    #     "status" => 200,
-    #     "body" => _body
-    #   } =
-    #     Repo.first(
-    #       from b in {:fetch, "https://coinmarketcap.com"},
-    #       where: b.status == 200,
-    #       select: html_parse(b)
-    #     )
-    # end
+    test "it fetches pages" do
+      assert %{
+        status: 200,
+        body: _body
+      } =
+        Repo.first(
+          from b in fetch("https://coinmarketcap.com"),
+          select: %{
+            status: b.status,
+            body: b.body
+          }
+        )
+    end
 
     # test "it works with piping" do
     #   overview =

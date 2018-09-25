@@ -15,8 +15,8 @@ defmodule Exd.Query.Builder.From do
       # {quote(do: n), [p: 0]}
   """
   @spec escape(Macro.t) :: {Macro.t, Keyword.t}
-  def escape({:in, _, [var, source]}) do
-    {Builder.escape_binding(var), escape_source(source)}
+  def escape({:in, _, [{var, _, _}, source]}) do
+    {Atom.to_string(var), escape_source(source)}
   end
 
   def escape_source({:%{}, _, keys_and_args}), do: for {key, arg} <- keys_and_args, into: %{}, do: {key, arg}

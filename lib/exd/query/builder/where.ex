@@ -16,16 +16,11 @@ defmodule Exd.Query.Builder.Where do
   """
   @spec escape(Macro.t) :: {Macro.t, Keyword.t}
   def escape({operator, _, [left, right]}) do
-    {escape(left), operator, escape(right)}
+    {Builder.escape(left), operator, Builder.escape(right)}
   end
-  def escape({{:., _, [{binding, _, nil}, path]}, _, []}), do: escape({binding, [], path})
-  def escape({binding, _, nil}) when is_atom(binding), do: {:binding, Atom.to_string(binding), []}
-  def escape({binding, _, path}) when is_atom(binding), do: {:binding, Atom.to_string(binding), escape(path)}
-  def escape(binding) when is_atom(binding), do: Atom.to_string(binding)
-  def escape(binding), do: binding
 
   @doc """
-
+  ...
   """
   def build(query, binding, expr, env) do
     where = escape(expr)

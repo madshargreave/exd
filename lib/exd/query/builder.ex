@@ -5,13 +5,32 @@ defmodule Exd.Query.Builder do
   alias Exd.Query
   alias Exd.Query.Builder.{From, Where, Select}
 
-  @spec escape_binding(list) :: {Macro.t | Exd.Query.t, Keyword.t}
-  def escape_binding(binding) do
-    escape_bind(binding)
+  @doc """
+  Escapes a from(a in b) expression
+
+  ## Example
+
+      iex> escape(quote do: var)
+      {:binding, ["var"]}
+
+      iex> escape(quote do: var.x)
+      {:binding, ["var", "x"]}
+  """
+  # var - where var is bound
+  def escape({binding, _, _}) when is_atom(binding) do
+    {:binding, [do_escape(binding)]}
   end
 
-  defp escape_bind({var, _, _} = tuple),
-    do: Atom.to_string(var)
+  # var.x - where var is bound
+  def escape({{:., _, [{binding, _, _}, field]}, _, _} = expr) do
+    {:binding, [do_escape(binding), do_escape(field)]}
+  end
+  def escape(binding), do: binding
+
+  defp do_escape({binding, _, _}) when is_atom(binding), do: escape(binding)
+  defp do_escape(binding)
+    when is_atom(binding), do: Atom.to_string(binding)
+
 
   @doc """
   Creates a query

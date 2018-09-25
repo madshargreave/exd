@@ -1,6 +1,7 @@
 defmodule Exd.Query.BuilderTest do
   use ExUnit.Case
   import Exd.Query.Builder
+  doctest Exd.Query.Builder
 
   describe "from/2" do
     test "it for lists" do
@@ -23,7 +24,7 @@ defmodule Exd.Query.BuilderTest do
       assert %Exd.Query{
         from: {"numbers", [1, 2, 3], []},
         where: [
-          {{:binding, "numbers", []}, :>, 1}
+          {{:binding, ["numbers"]}, :>, 1}
         ],
         select: {:binding, "numbers", []}
       } ==

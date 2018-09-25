@@ -1,33 +1,24 @@
 defmodule Exd.Plugin do
   @moduledoc false
-  alias Exd.Plugin.String.{
-    Capitalize,
-    Cast,
-    Downcase,
-    Upcase,
-    Interpolate,
-    Regex,
-    Replace,
-    Trim
-  }
-  alias Exd.Plugin.List.Range
-  alias Exd.Plugin.Fetch
+  alias Exd.Plugin.String, as: StringPlugin
+  alias Exd.Plugin.List, as: ListPlugin
+  alias Exd.Plugin.Fetch, as: FetchPlugin
 
   # A list of standard plugins
   @default_plugins [
     # Strings
-    Capitalize,
-    Cast,
-    Downcase,
-    Upcase,
-    Interpolate,
-    Regex,
-    Replace,
-    Trim,
+    StringPlugin.Capitalize,
+    StringPlugin.Cast,
+    StringPlugin.Downcase,
+    StringPlugin.Upcase,
+    StringPlugin.Interpolate,
+    StringPlugin.Regex,
+    StringPlugin.Replace,
+    StringPlugin.Trim,
     # List
-    Range,
+    ListPlugin.Range,
     # Fetch
-    Fetch,
+    FetchPlugin,
   ]
 
   @loaded_plugins @default_plugins ++ Application.get_env(:exd, :plugins, [])

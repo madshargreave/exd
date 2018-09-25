@@ -19,33 +19,29 @@ defmodule Exd.Query do
             distinct: nil,
             env: %{}
 
+  defmodule FromExpr do
+    @moduledoc false
+    defstruct as: nil, expr: nil
+  end
+
+  defmodule SelectExpr do
+    @moduledoc false
+    defstruct expr: nil
+  end
+
+  defmodule WhereExpr do
+    @moduledoc false
+    defstruct field: nil, relation: nil, expr: nil
+  end
+
+  defmodule FunctionExpr do
+    @moduledoc false
+    defstruct name: nil, arguments: []
+  end
+
   @typedoc "Query struct"
   @type t :: %__MODULE__{}
 
-  @typedoc "Identifier"
-  @type name :: binary()
-
-  @typedoc "A queryable source"
-  @type sourceable :: t() | term() | [t()] | [term()]
-
-  @typedoc "From expression"
-  @type from_expr :: {name(), sourceable()}
-
-  @typedoc "Join expression"
-  @type join_expr :: %{ from: from_expr(), left_key: term(), right_key: term() }
-
-  @typedoc "Select expression"
-  @type select_expr :: map()
-
-  defdelegate new, to: Builder
-  defdelegate set(query, key, value), to: Builder
-  defdelegate from(query \\ %Query{}, namespace, specable, opts \\ []), to: Builder
-  defdelegate join(query, namespace, specable, opts \\ []), to: Builder
-  defdelegate where(query, field, relation, value), to: Builder
-  defdelegate select(query, selection), to: Builder
-  defdelegate into(query, sink, opts \\ []), to: Builder
-  defdelegate flatten(query, fields), to: Builder
-  defdelegate to_list(query), to: Repo, as: :run
-  defdelegate validate(queryable), to: Validator
+  defdelegate first(query), to: Repo, as: :first
 
 end

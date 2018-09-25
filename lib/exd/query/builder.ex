@@ -1,77 +1,56 @@
 defmodule Exd.Query.Builder do
   @moduledoc """
-  Pipe API for constructing Exd.Query structs
+  API for constructing queries using macros
   """
   alias Exd.Query
-  alias Exd.Query.Rewriter
+  alias Exd.Query.Builder.{From, Where, Select}
 
-  @doc """
-  Create a new query
-  """
-  @spec new :: Query.t
-  def new do
-    %Query{}
+  @spec escape_binding(list) :: {Macro.t | Exd.Query.t, Keyword.t}
+  def escape_binding(binding) do
+    escape_bind(binding)
   end
 
-  @doc """
-  Set the from clause for query
-  """
-  @spec from(Query.t, binary, any) :: Query.t
-  def from(query \\ %Query{}, namespace, specable, opts \\ []) do
-    %Query{query | from: {namespace, specable, opts}}
-  end
+  defp escape_bind({var, _, _} = tuple),
+    do: Atom.to_string(var)
 
   @doc """
-  Add a join clause to query
+  Creates a query
+
+  ## Keywords example
+
+      from(n in [1, 2, 3], select: n)
   """
-  @spec join(Query.t, binary, any, keyword) :: Query.t
-  def join(query, namespace, specable, opts \\ []) do
-    joins = query.joins ++ [%{
-      from: {namespace, specable, opts}
-    }]
-    %Query{query | joins: joins}
+  defmacro from(expr, opts \\ []) do
+    unless Keyword.keyword?(opts) do
+      raise ArgumentError, "second argument to `from` must be a compile time keyword list"
+    end
+    {query, binds} = From.build(expr, __CALLER__)
+    from(opts, __CALLER__, query, binds)
   end
 
-  @doc """
-  Add a where clause to query
-  """
-  @spec where(Query.t, binary, term, any) :: Query.t
-  def where(query, field, relation, value) do
-    wheres = [{field, relation, value} | query.where]
-    %Query{query | where: wheres}
+  @binds ~w(where or_where select select_merge)a
+  @functions ~w(add subtract multiply divide interpolate regex replace range unnest)a
+
+  defp from([{:select, expr} | rest], env, query, binds) do
+    from(
+      rest,
+      env,
+      Select.build(query, binds, expr, env),
+      binds
+    )
   end
 
-  @doc """
-  Set the select clause for query
-  """
-  @spec select(Query.t, map) :: Query.t
-  def select(query, selection) do
-    %Query{query | select: selection}
-    |> Rewriter.rewrite
+  defp from([{:where, expr} | rest], env, query, binds) do
+    from(
+      rest,
+      env,
+      Where.build(query, binds, expr, env),
+      binds
+    )
   end
 
-  @doc """
-  Set the flatten options
-  """
-  @spec flatten(Query.t, [term]) :: Query.t
-  def flatten(query, fields) do
-    %Query{query | flatten: fields}
-  end
-
-  @doc """
-  Set the select clause for query
-  """
-  @spec into(Query.t, term, keyword) :: Query.t
-  def into(query, sink, opts \\ []) do
-    %Query{query | into: {sink, opts}}
-  end
-
-  @doc """
-  Set the environment of the query
-  """
-  @spec set(Query.t, term, any) :: Query.t
-  def set(query, key, value) do
-    %Query{query | env: Map.put(query.env, key, value)}
+  defp from([], _env, quoted, _binds) do
+    Macro.escape(quoted)
   end
 
 end

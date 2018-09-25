@@ -19,8 +19,8 @@ defmodule Exd.Plugin.String.Regex do
   use Exd.Plugin
 
   @impl true
-  def handle_parse({:regex, string, %Regex{} = regex}), do: {:ok, {string, regex}}
-  def handle_parse({:regex, string, regex}) when is_binary(regex) do
+  def handle_parse({:regex, [string, %Regex{} = regex]}), do: {:ok, {string, regex}}
+  def handle_parse({:regex, [string, regex]}) when is_binary(regex) do
     {:ok, regex} = Regex.compile(regex)
     {:ok, {string, regex}}
   end

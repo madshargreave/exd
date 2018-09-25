@@ -19,7 +19,7 @@ defmodule Exd.Plugin.String.Replace do
   use Exd.Plugin
 
   @impl true
-  def handle_parse({:replace, value, pattern, replacement}) do
+  def handle_parse({:replace, [value, pattern, replacement]}) do
     {:ok, {value, pattern, replacement}}
   end
 

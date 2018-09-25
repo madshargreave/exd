@@ -14,12 +14,12 @@ defmodule Exd.Plugin.Fetch.Client do
     {:ok, responses} = send_request(client, urls)
     for {:ok, response} <- responses,
         {:ok, body} <- parse_body(responses) do
-      [
+      # [
         %{
-          status: response.status_code,
-          body: body
+          "status" => response.status_code,
+          "body" => body
         }
-      ]
+      # ]
     end
   end
 
@@ -29,9 +29,8 @@ defmodule Exd.Plugin.Fetch.Client do
   end
 
   defp parse_body(responses) when is_list(responses), do: for response <- responses, do: parse_body(response)
-  defp parse_body({:ok, %Response{status_code: 200, body: body}}) do
+  defp parse_body({:ok, %Response{body: body}}) do
     {:ok, body}
   end
-  # defp parse_body(_), do: :error
 
 end

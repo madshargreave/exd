@@ -19,8 +19,8 @@ defmodule Exd.Plugin.String.Interpolate do
   use Exd.Plugin
 
   @impl true
-  def handle_parse({:interpolate, string, binding}) when is_binary(binding), do: handle_parse({:interpolate, string, [binding]})
-  def handle_parse({:interpolate, string, bindings}) do
+  def handle_parse({:interpolate, [string, binding]}) when is_binary(binding), do: handle_parse({:interpolate, [string, [binding]]})
+  def handle_parse({:interpolate, [string, bindings]}) do
     {:ok, {string, bindings}}
   end
 

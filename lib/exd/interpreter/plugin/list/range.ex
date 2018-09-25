@@ -19,7 +19,7 @@ defmodule Exd.Plugin.List.Range do
   use Exd.Plugin
 
   @impl true
-  def handle_parse({:range, min, max}) do
+  def handle_parse({:range, [min, max]}) do
     {:ok, {min, max}}
   end
 

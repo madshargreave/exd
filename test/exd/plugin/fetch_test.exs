@@ -26,6 +26,7 @@ defmodule Exd.Plugin.FetchTest do
       } =
         Repo.first(
           from b in fetch("https://coinmarketcap.com"),
+          where: b.status == 200,
           select: %{
             status: b.status,
             body: b.body

@@ -7,7 +7,7 @@ defmodule Exd.Plugin.String.RegexTest do
       assert "hello" ==
         Repo.first(
           from g in ["hello.there"],
-          select: regex(g, "'^(hello)'")
+          select: regex(g, "^(hello)")
         )
     end
 

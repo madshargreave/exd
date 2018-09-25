@@ -28,13 +28,13 @@ defmodule Exd.Interpreter.Where do
   end
 
   defp match?(record, field, relation, value) do
-    left = Resolvable.resolve(field, record)
-    right = Resolvable.resolve(value, record)
+    left = Exd.Interpreter.Select.resolve_arg(record, field)
+    right = Exd.Interpreter.Select.resolve_arg(record, value)
     do_match?(relation, left, right)
   end
   defp do_match?(:>, left, right), do: left > right
   defp do_match?(:<, left, right), do: left < right
-  defp do_match?(:=, left, right), do: left = right
+  defp do_match?(:==, left, right), do: left == right
   defp do_match?(:<>, left, right), do: left != right
 
 end

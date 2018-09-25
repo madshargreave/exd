@@ -44,7 +44,6 @@ defmodule Exd.Source do
 
   @impl true
   def init(opts) do
-    IO.inspect opts
     {adapter, adapter_opts} = Keyword.fetch!(opts, :adapter)
     {:ok, source_state} = adapter.init(adapter_opts)
     {:producer, {adapter, 0, [], source_state}}

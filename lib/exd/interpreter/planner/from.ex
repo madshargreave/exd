@@ -12,15 +12,34 @@ defmodule Exd.Interpreter.From do
 
   @type options :: [option]
 
-  def from(namespace) do
+  def from(namespace, specable, opts \\ [], env \\ %{})
 
+  def from(namespace, {func, args}, opts, env) when is_atom(func) do
+    max_demand = Keyword.get(opts, :max_demand, 1)
+    min_demand = Keyword.get(opts, :min_demand, 0)
+    stages = Keyword.get(opts, :stages, 1)
+    window = Keyword.get(opts, :window, Flow.Window.global)
+    key_fn = Keyword.get(opts, :key, &default_hash/1)
+
+    {:ok, module} = Exd.Plugin.resolve({func, args})
+    {:ok, calls} = module.handle_parse({func, args})
+    {:ok, [result]} = module.handle_eval([calls])
+
+    Flow.from_enumerable(result)
+    |> Flow.map(&to_record(&1, namespace, key_fn))
+    |> Flow.partition(
+      stages: stages,
+      min_demand: min_demand,
+      max_demand: max_demand,
+      key: &(&1.key)
+    )
   end
 
   @doc """
   Creates a new flow from source
   """
   @spec from(binary(), any(), options()) :: Flow.t
-  def from(namespace, specable, opts \\ [], env \\ %{}) do
+  def from(namespace, specable, opts, env) do
     max_demand = Keyword.get(opts, :max_demand, 1)
     min_demand = Keyword.get(opts, :min_demand, 0)
     stages = Keyword.get(opts, :stages, 1)

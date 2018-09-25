@@ -19,11 +19,7 @@ defmodule Exd.Interpreter.Select do
       value =
         selection
         |> Enum.reduce(%{}, fn {key, expr}, row ->
-          resolved =
-            case Exd.Resolvable.resolve(expr, record, env) do
-              {_key, resolved} -> resolved
-              resolved -> resolved
-            end
+          resolved = do_select(record, expr).value
           Map.put(row, key, resolved)
         end)
       %Exd.Record{record | value: value}
@@ -35,42 +31,24 @@ defmodule Exd.Interpreter.Select do
   """
   def select(flow, selection, env) when is_tuple(selection) do
     flow
-    |> Flow.map(fn record ->
-      value =
-        selection
-        # |> Tuple.to_list
-        # |> Enum.map(fn path ->
-        #   resolved = Exd.Resolvable.resolve(path, record)
-        #   resolved
-        # end)
-        # |> List.to_tuple
-        # |> IO.inspect
-        |> Exd.Resolvable.resolve(record)
-        # |> IO.inspect
-
-      %Exd.Record{record | value: value}
-    end)
+    |> Flow.map(&do_select(&1, selection))
+  end
+  defp do_select(record, {:binding, binding, path} = expr), do: %Exd.Record{record | value: resolve_arg(record, expr)}
+  defp do_select(record, {func, args} = expr) do
+    args = for arg <- args, do: resolve_arg(record, arg)
+    {:ok, module} = Exd.Plugin.resolve({func, args})
+    {:ok, calls} = module.handle_parse({func, args})
+    {:ok, [result]} = module.handle_eval([calls])
+    %Exd.Record{record | value: result}
   end
 
-  def select(flow, namespace, env) when is_binary(namespace) do
-    flow
-    |> Flow.map(fn record ->
-      value = Exd.Resolvable.resolve(namespace, record)
-      %Exd.Record{record | value: value}
-    end)
-  end
-
-  def select(flow, [first | _rest] = selection, env) when is_binary(first) do
-    flow
-    |> Flow.map(fn record ->
-      value =
-        selection
-        |> Enum.reduce(%{}, fn namespace, acc ->
-            acc
-            |> Map.merge(Exd.Resolvable.resolve(namespace, record))
-        end)
-      %Exd.Record{record | value: value}
-    end)
-  end
+  def resolve_arg(record, args) when is_list(args), do: for arg <- args, do: resolve_arg(record, arg)
+  # def resolve_arg(record, {:binding, binding, path}) when is_list(path), do: get_in(record.value, [binding | path])
+  def resolve_arg(record, {:binding, binding, nil}), do: get_in(record.value, [binding])
+  def resolve_arg(record, {:binding, binding, path}) when is_list(path), do: get_in(record.value, [binding | path])
+  def resolve_arg(record, {:binding, binding, path}), do: get_in(record.value, [binding | [path]])
+  def resolve_arg(record, value) when is_binary(value), do: value
+  def resolve_arg(record, %Regex{} = value), do: value
+  def resolve_arg(record, value), do: value
 
 end

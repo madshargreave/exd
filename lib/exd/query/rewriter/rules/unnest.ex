@@ -6,12 +6,13 @@ defmodule Exd.Query.Rewriter.Rules.Unnest do
   alias Exd.Query
 
   @impl true
-  def rewrite(key, {:unnest, list} = value, %Query{select: selection} = query) do
+  def rewrite(key, {:unnest, [list]} = value, %Query{select: selection} = query) do
     selection_without_unnest = Map.put(selection, key, list)
     flattened =
-      query
-      |> Query.flatten(query.flatten ++ [key])
-      |> Query.select(selection_without_unnest)
+      %Query{query |
+        flatten: query.flatten ++ [key],
+        select: selection_without_unnest
+      }
 
     {list, flattened}
   end

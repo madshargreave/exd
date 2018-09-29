@@ -3,6 +3,7 @@ defmodule Exd.Interpreter.Planner do
   Plans the execution of a query
   """
   alias Exd.Query
+  alias Exd.Query.Rewriter
   alias Exd.Interpreter.{From, Join, Where, Select, Flatten, Into}
 
   @doc """
@@ -20,6 +21,7 @@ defmodule Exd.Interpreter.Planner do
   """
   @spec plan_query(Query.t()) :: Flow.t()
   def plan_query(%Query{} = query) do
+    query = Rewriter.rewrite(query)
     flow = plan_from(query)
 
     flow

@@ -3,7 +3,6 @@ defmodule Exd.Interpreter do
   Main flow coordinator
   """
   alias Exd.Query
-  alias Exd.Query.Rewriter
   alias Exd.Interpreter.Planner
 
   @doc """

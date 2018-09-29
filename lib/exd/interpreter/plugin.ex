@@ -21,8 +21,6 @@ defmodule Exd.Plugin do
     FetchPlugin,
   ]
 
-  @loaded_plugins @default_plugins ++ Application.get_env(:exd, :plugins, [])
-
   @doc """
   Initializes the state of the plugin
   """
@@ -70,8 +68,8 @@ defmodule Exd.Plugin do
   Resolves the plugin that handles a particular expression
   """
   def resolve(expr) do
-    # IO.inspect {expr}
-    case Enum.find(@loaded_plugins, &(&1.match?(expr))) do
+    loaded_plugins = @default_plugins ++ Application.get_env(:exd, :plugins, [])
+    case Enum.find(loaded_plugins, &(&1.match?(expr))) do
       nil -> :error
       module -> {:ok, module}
     end

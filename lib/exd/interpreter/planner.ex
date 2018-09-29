@@ -3,7 +3,7 @@ defmodule Exd.Interpreter.Planner do
   Plans the execution of a query
   """
   alias Exd.Query
-  alias Exd.Interpreter.{From, Join, Where, Select, Flatten, Into, Commit}
+  alias Exd.Interpreter.{From, Join, Where, Select, Flatten, Into}
 
   @doc """
   Plan query flow
@@ -12,7 +12,6 @@ defmodule Exd.Interpreter.Planner do
   def plan(%Query{} = query) do
     query
     |> plan_query
-    |> plan_commit
     |> plan_resolve
   end
 
@@ -34,6 +33,8 @@ defmodule Exd.Interpreter.Planner do
   defp plan_from(%Query{from: {namespace, specable, opts}, env: env} = query) do
     From.from(namespace, specable, opts, env)
   end
+  defp plan_from(%Query{from: {namespace, specable}, env: env} = query),
+    do: plan_from(%Query{query | from: {namespace, specable, []}})
 
   defp plan_joins(flow, %Query{joins: joins} = _query) do
     joins
@@ -61,10 +62,6 @@ defmodule Exd.Interpreter.Planner do
   defp plan_into(flow, %Query{into: nil} = _query), do: flow
   defp plan_into(flow, %Query{into: {namespace, sink}}) do
     Into.into(flow, sink)
-  end
-
-  defp plan_commit(flow) do
-    Commit.commit(flow)
   end
 
   defp plan_resolve(flow) do

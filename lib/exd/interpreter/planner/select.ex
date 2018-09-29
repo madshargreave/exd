@@ -33,7 +33,8 @@ defmodule Exd.Interpreter.Select do
     flow
     |> Flow.map(&do_select(&1, selection))
   end
-  defp do_select(record, {:binding, binding, path} = expr), do: %Exd.Record{record | value: resolve_arg(record, expr)}
+  # defp do_select(record, binding) when is_binary(binding), do: %Exd.Record{record | value: get_in(record.value, [binding])}
+  defp do_select(record, {:binding, [binding | path]} = expr), do: %Exd.Record{record | value: resolve_arg(record, expr)}
   defp do_select(record, {func, args} = expr) do
     args = for arg <- args, do: resolve_arg(record, arg)
     {:ok, module} = Exd.Plugin.resolve({func, args})
@@ -44,11 +45,12 @@ defmodule Exd.Interpreter.Select do
 
   def resolve_arg(record, args) when is_list(args), do: for arg <- args, do: resolve_arg(record, arg)
   # def resolve_arg(record, {:binding, binding, path}) when is_list(path), do: get_in(record.value, [binding | path])
-  def resolve_arg(record, {:binding, binding, nil}), do: get_in(record.value, [binding])
-  def resolve_arg(record, {:binding, binding, path}) when is_list(path), do: get_in(record.value, [binding | path])
-  def resolve_arg(record, {:binding, binding, path}), do: get_in(record.value, [binding | [path]])
+  def resolve_arg(record, {:binding, [binding]}), do: get_in(record.value, [binding])
+  def resolve_arg(record, {:binding, [binding, path]}) when is_list(path), do: get_in(record.value, [binding | path])
+  def resolve_arg(record, {:binding, [binding, path]}), do: get_in(record.value, [binding | [path]])
   def resolve_arg(record, value) when is_binary(value), do: value
   def resolve_arg(record, %Regex{} = value), do: value
-  def resolve_arg(record, value), do: value
+  def resolve_arg(record, {:sigil_r, [{:<<>>, [regex]}, []]}), do: Regex.compile!(regex)
+  # def resolve_arg(record, value), do: value
 
 end

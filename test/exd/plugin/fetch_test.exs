@@ -6,16 +6,38 @@ defmodule Exd.Plugin.FetchTest do
   #   opts = [{:symbol, key: symbol, ttl: 5000}]
 
   #   Repo.first(
-  #     from b in fetch(interpolate("https://coinmarketcap.com/currencies/?", ^symbol)),
+      # from b in fetch(interpolate("https://coinmarketcap.com/currencies/?", ^symbol)),
+      # select: %{
+      #   name: html_parse_text(b.body, ".coin-name"),
+      #   symbol: html_parse_text(b.body, ".coin-symbol"),
+      #   price: html_parse_text(b.body, ".coin-price"),
+      #   marketcap: html_parse_text(b.body, ".coin-marketcap"),
+      #   volume: html_parse_text(b.body, ".coin-volume")
+      # },
+  #     opts
+  #   )
+  # end
+
+  # def perform(job) do
+  #   query =
+  #     from b in fetch("https://coinmarketcap.com"),
   #     select: %{
   #       name: html_parse_text(b.body, ".coin-name"),
   #       symbol: html_parse_text(b.body, ".coin-symbol"),
   #       price: html_parse_text(b.body, ".coin-price"),
   #       marketcap: html_parse_text(b.body, ".coin-marketcap"),
   #       volume: html_parse_text(b.body, ".coin-volume")
-  #     },
-  #     opts
+  #     }
+
+  #   Repo.stream(
+  #     from q in subquery(query),
+  #     select: %{
+  #       query_id: ^job.query_id,
+  #       data: q
+  #     }
   #   )
+  #   |> Stream.each(&IO.inspect/1)
+  #   |> Stream.run
   # end
 
   describe "fetch/1" do

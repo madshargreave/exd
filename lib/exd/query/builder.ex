@@ -44,6 +44,13 @@ defmodule Exd.Query.Builder do
   end
 
   @doc """
+  Creates a where expression
+  """
+  defmacro where(query, binds \\ [], expr) do
+    Where.build(query, binds, expr, __CALLER__)
+  end
+
+  @doc """
 
   """
   def apply_query(query, module, args, env) do

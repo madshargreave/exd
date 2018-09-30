@@ -46,10 +46,15 @@ defmodule Exd.Interpreter.Select do
   end
 
   def resolve_arg(record, args) when is_list(args), do: for arg <- args, do: resolve_arg(record, arg)
-  def resolve_arg(record, {:binding, binding}), do: get_in(record.value, binding)
+  def resolve_arg(record, {:binding, binding}), do: get_in(AtomicMap.convert(record.value, %{ignore: true}), binding)
   def resolve_arg(record, value) when is_binary(value), do: value
+  def resolve_arg(record, value) when is_atom(value), do: value
   def resolve_arg(record, %Regex{} = value), do: value
   def resolve_arg(record, {:sigil_r, [{:<<>>, [regex]}, []]}), do: Regex.compile!(regex)
-  # def resolve_arg(record, value), do: value
+  def resolve_arg(record, value) when is_integer(value), do: value
+  def resolve_arg(record, value), do: do_select(record, value).value
+
+  # defp atom_to_string(binding) when is_atom(binding), do: Atom.to_string(binding)
+  # defp atom_to_string(binding), do: binding
 
 end

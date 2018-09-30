@@ -6,21 +6,21 @@ defmodule Exd.Interpreter.FromTest do
   describe "from/4" do
     test "it works with list literals" do
       assert [
-        %{"name" => "bitcoin"},
-        %{"name" => "ethereum"},
-        %{"name" => "ripple"}
+        %{name: "bitcoin"},
+        %{name: "ethereum"},
+        %{name: "ripple"}
       ] =
         Repo.all(
           %Query{
             from: {
-              "c",
+              :c,
               [
-                %{"name" => "bitcoin"},
-                %{"name" => "ethereum"},
-                %{"name" => "ripple"}
+                %{name: "bitcoin"},
+                %{name: "ethereum"},
+                %{name: "ripple"}
               ]
             },
-            select: {:binding, ["c"]}
+            select: {:binding, [:c]}
           }
         )
     end
@@ -29,14 +29,14 @@ defmodule Exd.Interpreter.FromTest do
       subquery =
         %Query{
           from: {
-            "inner",
+            :inner,
             [
-              %{"name" => "bitcoin"},
-              %{"name" => "ethereum"},
-              %{"name" => "ripple"}
+              %{name: "bitcoin"},
+              %{name: "ethereum"},
+              %{name: "ripple"}
             ]
           },
-          select: {:binding, ["inner"]}
+          select: {:binding, [:inner]}
         }
 
       assert [
@@ -47,13 +47,13 @@ defmodule Exd.Interpreter.FromTest do
         Repo.all(
           %Query{
             from: {
-              "outer",
+              :outer,
               {
                 :subquery,
                 [subquery]
               }
             },
-            select: {:binding, ["outer", "name"]}
+            select: {:binding, [:outer, :name]}
           }
         )
     end

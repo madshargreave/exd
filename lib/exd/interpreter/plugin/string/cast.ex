@@ -19,7 +19,7 @@ defmodule Exd.Plugin.String.Cast do
   use Exd.Plugin
 
   @impl true
-  def handle_parse({:cast, string, type}) do
+  def handle_parse({:cast, [string, type]}) do
     {:ok, {string, type}}
   end
 

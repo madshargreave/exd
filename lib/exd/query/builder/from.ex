@@ -10,7 +10,8 @@ defmodule Exd.Query.Builder.From do
   """
   @spec escape_binding(Macro.t) :: {Macro.t, list}
   def escape_binding({binding, _, _}) when is_atom(binding) do
-    Atom.to_string(binding)
+    # Atom.to_string(binding)
+    binding
   end
 
   @doc """

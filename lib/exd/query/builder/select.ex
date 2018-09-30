@@ -13,11 +13,9 @@ defmodule Exd.Query.Builder.Select do
   # Binding
   def escape({{:., _, [binding, field]}, _, []}, env) do
     {_, [binding]} = escape(binding, env)
-    field = Atom.to_string(field)
     {:binding, [binding, field]}
   end
   def escape({binding, _, nil}, env) when is_atom(binding) do
-    binding = Atom.to_string(binding)
     {:binding, [binding]}
   end
 

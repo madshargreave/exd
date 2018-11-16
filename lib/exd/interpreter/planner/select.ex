@@ -10,6 +10,21 @@ defmodule Exd.Interpreter.Select do
   @spec select(Flow.t, map() | tuple()) :: Flow.t
   def select(flow, map_or_tuple, env \\ %{})
 
+  def select(flow, :select_all, env) do
+    flow
+    |> Flow.map(fn record ->
+        value =
+          record.value
+          |> Map.keys()
+          |> Enum.reduce(%{}, fn key, acc ->
+            record.value
+            |> Map.get(key)
+            |> Map.merge(acc)
+          end)
+        %Exd.Record{record | value: value}
+    end)
+  end
+
   @doc """
   Selects map
   """
@@ -22,7 +37,7 @@ defmodule Exd.Interpreter.Select do
           resolved = do_select(record, expr).value
           Map.put(row, key, resolved)
         end)
-      %Exd.Record{record | value: AtomicMap.convert(value)}
+      %Exd.Record{record | value: AtomicMap.convert(value, %{ignore: true, safe: false})}
     end)
   end
 
@@ -41,12 +56,16 @@ defmodule Exd.Interpreter.Select do
     # IO.inspect {"AFTER", func, args}
     {:ok, module} = Exd.Plugin.resolve({func, args})
     {:ok, calls} = module.handle_parse({func, args})
-    {:ok, [result]} = module.handle_eval([calls])
-    %Exd.Record{record | value: result}
+    case module.handle_eval([calls]) do
+      {:ok, [result]} ->
+        %Exd.Record{record | value: result}
+      {:ok, result} ->
+        %Exd.Record{record | value: result}
+    end
   end
 
   def resolve_arg(record, args) when is_list(args), do: for arg <- args, do: resolve_arg(record, arg)
-  def resolve_arg(record, {:binding, binding}), do: get_in(AtomicMap.convert(record.value, %{ignore: true}), binding)
+  def resolve_arg(record, {:binding, binding}), do: get_in(AtomicMap.convert(record.value, %{ignore: true, safe: false}), binding)
   def resolve_arg(record, value) when is_binary(value), do: value
   def resolve_arg(record, value) when is_atom(value), do: value
   def resolve_arg(record, %Regex{} = value), do: value

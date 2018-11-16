@@ -17,6 +17,7 @@ defmodule Exd.Query do
             or_where: [],
             into: nil,
             distinct: nil,
+            sources: %{},
             env: %{}
 
   defmodule FromExpr do

@@ -62,7 +62,7 @@ defmodule Exd.Interpreter.Planner do
   end
 
   defp plan_into(flow, %Query{into: nil} = _query), do: flow
-  defp plan_into(flow, %Query{into: {namespace, sink}}) do
+  defp plan_into(flow, %Query{into: sink}) do
     Into.into(flow, sink)
   end
 

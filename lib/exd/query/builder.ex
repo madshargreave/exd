@@ -3,7 +3,7 @@ defmodule Exd.Query.Builder do
   API for constructing queries using macros
   """
   alias Exd.Query
-  alias Exd.Query.Builder.{From, Where, Select}
+  alias Exd.Query.Builder.{From, Where, Select, Into}
 
   @doc """
   Creates a query
@@ -20,7 +20,7 @@ defmodule Exd.Query.Builder do
     from(opts, quoted, binds, __CALLER__)
   end
 
-  @binds ~w(where or_where select select_merge)a
+  @binds ~w(where or_where select select_merge into)a
   @functions ~w(add subtract multiply divide interpolate regex replace range unnest)a
 
   defp from([{type, expr} | rest], quoted, binds, env) when type in @binds do
@@ -48,6 +48,13 @@ defmodule Exd.Query.Builder do
   """
   defmacro where(query, binds \\ [], expr) do
     Where.build(query, binds, expr, __CALLER__)
+  end
+
+  @doc """
+  Creates a into expression
+  """
+  defmacro into(query, binds \\ [], expr) do
+    Into.build(query, binds, expr, __CALLER__)
   end
 
   @doc """

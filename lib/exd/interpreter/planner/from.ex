@@ -25,6 +25,9 @@ defmodule Exd.Interpreter.From do
   def from(binding, source, opts, env) when is_list(source) do
     from(binding, Flow.from_enumerable(source), opts, env)
   end
+  def from(binding, %Stream{} = source, opts, env) do
+    from(binding, Flow.from_enumerable(source), opts, env)
+  end
   def from(binding, %Flow{} = flow, opts, env) do
     max_demand = Keyword.get(opts, :max_demand, 1)
     min_demand = Keyword.get(opts, :min_demand, 0)

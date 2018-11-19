@@ -3,7 +3,8 @@ defmodule Exd.Record do
   defstruct key: nil,
             value: nil,
             flag: nil,
-            __meta__: %{}
+            source: nil,
+            meta: %{}
 
   @type key :: binary()
   @type value :: any()
@@ -15,7 +16,7 @@ defmodule Exd.Record do
       key: key,
       value: value,
       flag: nil,
-      __meta__: (for {key, value} <- opts, into: %{}, do: {key, value})
+      meta: (for {key, value} <- opts, into: %{}, do: {key, value})
     }
   end
 

@@ -8,7 +8,8 @@ defmodule Exd.Interpreter.Into do
   """
   @spec into(Flow.t(), function()) :: Flow.t()
   def into(flow, callback) when is_function(callback) do
-    Flow.each(flow, callback)
+    flow
+    |> Flow.each(callback)
   end
 
 end

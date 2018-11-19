@@ -5,6 +5,23 @@ defmodule Exd.Repo do
   """
   alias Exd.Interpreter
 
+  defmodule Doubler do
+    use GenStage
+
+    def start_link(opts) do
+      GenStage.start_link(__MODULE__, opts)
+    end
+
+    def init(_) do
+      {:consumer, []}
+    end
+
+    def handle_events(events, _from, state) do
+      {:noreply, [], state}
+    end
+
+  end
+
   @doc """
   Returns a stream of sourced records
   """
@@ -18,7 +35,7 @@ defmodule Exd.Repo do
   """
   def run(query, opts \\ []) do
     query
-    |> stream()
+    |> Interpreter.stream
     |> Enum.to_list
   end
 
@@ -26,7 +43,8 @@ defmodule Exd.Repo do
   Runs the stream
   """
   def all(query, opts \\ []) do
-    query |> run(opts)
+    query
+    |> run(opts)
   end
 
   @doc """

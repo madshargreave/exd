@@ -17,9 +17,9 @@ defmodule Exd.Interpreter.From do
     when is_atom(identifier) and is_list(args)
   do
     with {:ok, module} <- Exd.Plugin.resolve(expr),
-         {:ok, calls} <- module.handle_parse(expr),
-         {:ok, [result]} <- module.handle_eval([calls]) do
-      from(binding, result, opts, env)
+         {:ok, {module, opts} = spec} <- module.handle_parse(expr) do
+      flow = Flow.from_specs([spec], stages: 1)
+      from(binding, flow, opts, env)
     end
   end
   def from(binding, source, opts, env) when is_list(source) do
@@ -47,7 +47,7 @@ defmodule Exd.Interpreter.From do
 
   # Wrap the record in the binding
   defp to_record(%Record{} = record, binding, _key_fn) do
-    Record.new(record.key, %{binding => record.value})
+    %Record{record | value: %{binding => record.value}}
   end
   defp to_record(value, binding, key_fn) do
     key = key_fn.(%{binding => value})

@@ -34,7 +34,7 @@ defmodule Exd.Query.Builder.Where do
   Builds select clause
   """
   def build(query, binds, expr, env) do
-    wheres = escape(expr, env) |> IO.inspect
+    wheres = escape(expr, env)
     Builder.apply_query(query, __MODULE__, [wheres], env)
   end
 

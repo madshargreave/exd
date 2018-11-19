@@ -17,9 +17,12 @@ defmodule Exd.Interpreter.Select do
           record.value
           |> Map.keys()
           |> Enum.reduce(%{}, fn key, acc ->
-            record.value
-            |> Map.get(key)
-            |> Map.merge(acc)
+            value = Map.get(record.value, key)
+            if is_map(value) do
+              Map.merge(value, acc)
+            else
+              value
+            end
           end)
         %Exd.Record{record | value: value}
     end)
@@ -50,10 +53,7 @@ defmodule Exd.Interpreter.Select do
   end
   defp do_select(record, {:binding, [binding | path]} = expr), do: %Exd.Record{record | value: resolve_arg(record, expr)}
   defp do_select(record, {func, args} = expr) do
-    # IO.inspect {"VALUE", record.value}
-    # IO.inspect {"BEFORE", func, args}
     args = for arg <- args, do: resolve_arg(record, arg)
-    # IO.inspect {"AFTER", func, args}
     {:ok, module} = Exd.Plugin.resolve({func, args})
     {:ok, calls} = module.handle_parse({func, args})
     case module.handle_eval([calls]) do

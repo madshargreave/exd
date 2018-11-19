@@ -1,20 +1,17 @@
 defmodule Exd.Plugin.IntervalTest do
   use Exd.QueryCase
-  alias Exd.Repo
 
   describe "interval/1" do
     test "it emits events every interval" do
       parent = self()
-
-      Repo.start_link(
-        from i in [1, 2, 3],
+      Exd.Repo.start_link(
+        from i in interval(100),
         select: i,
-        into: fn i -> send(parent, {:event, i.value}) end
+        into: &send(parent, &1.value)
       )
-
-      assert_receive {:event, 1}
-      assert_receive {:event, 2}
-      assert_receive {:event, 3}
+      assert_receive %NaiveDateTime{} = _ts, 500
+      assert_receive %NaiveDateTime{} = _ts, 500
+      assert_receive %NaiveDateTime{} = _ts, 500
     end
   end
 end

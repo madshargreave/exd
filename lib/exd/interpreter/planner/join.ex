@@ -51,4 +51,11 @@ defmodule Exd.Interpreter.Join do
     end)
   end
 
+  def join(flow, namespace, value, opts) when is_list(value) do
+    flow
+    |> Flow.map(fn record ->
+      record
+    end)
+  end
+
 end

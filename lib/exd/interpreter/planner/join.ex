@@ -51,11 +51,16 @@ defmodule Exd.Interpreter.Join do
     end)
   end
 
-  def join(flow, namespace, value, opts) when is_list(value) do
+  def join(flow, namespace, expr, source_opts) do
+    {:ok, module} = Exd.Plugin.resolve(expr)
+    {:ok, {module, opts} = spec} = module.handle_parse(expr)
+    opts =
+      opts
+      |> Keyword.merge(source_opts)
+      |> Keyword.put(:namespace, namespace)
+    spec = {module, opts}
     flow
-    |> Flow.map(fn record ->
-      record
-    end)
+    |> Flow.through_specs([{spec, opts}], stages: 1, max_demand: 1)
   end
 
 end

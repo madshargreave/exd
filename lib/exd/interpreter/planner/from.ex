@@ -18,7 +18,13 @@ defmodule Exd.Interpreter.From do
   do
     with {:ok, module} <- Exd.Plugin.resolve(expr),
          {:ok, {module, opts} = spec} <- module.handle_parse(expr) do
-      flow = Flow.from_specs([spec], stages: 1)
+      opts = Keyword.merge(opts, source: true)
+      spec = {module, opts}
+      flow =
+        args
+        |> Flow.from_enumerable(stages: 1, max_demand: 1)
+        |> Flow.through_specs([spec], stages: 1)
+
       from(binding, flow, opts, env)
     end
   end

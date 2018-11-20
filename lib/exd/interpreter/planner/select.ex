@@ -51,8 +51,8 @@ defmodule Exd.Interpreter.Select do
     flow
     |> Flow.map(&do_select(&1, selection))
   end
-  defp do_select(record, {:binding, [binding | path]} = expr), do: %Exd.Record{record | value: resolve_arg(record, expr)}
-  defp do_select(record, {func, args} = expr) do
+  def do_select(record, {:binding, [binding | path]} = expr), do: %Exd.Record{record | value: resolve_arg(record, expr)}
+  def do_select(record, {func, args} = expr) do
     args = for arg <- args, do: resolve_arg(record, arg)
     {:ok, module} = Exd.Plugin.resolve({func, args})
     {:ok, calls} = module.handle_parse({func, args})

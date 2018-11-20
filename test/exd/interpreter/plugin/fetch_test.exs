@@ -18,18 +18,20 @@ defmodule Exd.Plugin.FetchTest do
     end
 
     # test "it works as a join" do
+    #   details =
+    #     from r in fetch(
+    #       interpolate("https://coinmarketcap.com/currencies/?", args.name)
+    #     ),
+    #     select: r
+
     #   assert [
     #     %{status: 200},
     #     %{status: 200},
     #     %{status: 200}
     #   ] =
     #     Repo.first(
-    #       from b in ["bitcoin", "ethereum", "ripple"],
-    #       join_lateral: r in subquery(
-    #         from r in fetch(
-    #           interpolate("https://coinmarketcap.com/currencies/?", b)
-    #         )
-    #       ),
+    #       from c in ["bitcoin", "ethereum", "ripple"],
+    #       join: d in details, on: d.name == c.name,
     #       select: %{
     #         status: b.status
     #       }

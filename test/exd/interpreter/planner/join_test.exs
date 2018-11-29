@@ -26,13 +26,15 @@ defmodule Exd.Interpreter.JoinTest do
                   :s,
                   {
                     :fetch,
-                      {
-                        :interpolate,
-                        [
-                          "https://coinmarketcap.com/currencies/?/",
-                          {:binding, [:c, :name]}
-                        ]
-                      }
+                      [
+                        {
+                          :interpolate,
+                          [
+                            "https://coinmarketcap.com/currencies/?/",
+                            {:binding, [:c, :name]}
+                          ]
+                        }
+                      ]
                   },
                   []
                 }

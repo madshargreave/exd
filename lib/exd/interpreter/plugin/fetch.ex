@@ -98,7 +98,7 @@ defmodule Exd.Plugin.Fetch do
             result
           true ->
             case state do
-              %{url: url} ->
+              %{url: [url]} ->
                 url = Exd.Interpreter.Select.do_select(record, url).value
                 [result] = Client.fetch(client, [url])
                 value = Map.merge(record.value, %{state.namespace => result})

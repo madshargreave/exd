@@ -23,7 +23,7 @@ defmodule Exd.Interpreter.From do
       flow =
         args
         |> Flow.from_enumerable(stages: 1, max_demand: 1)
-        |> Flow.through_specs([spec], stages: 1)
+        |> Flow.through_specs([{spec, []}], stages: 1)
 
       from(binding, flow, opts, env)
     end

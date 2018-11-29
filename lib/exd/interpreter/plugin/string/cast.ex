@@ -26,10 +26,13 @@ defmodule Exd.Plugin.String.Cast do
   @impl true
   def handle_eval(calls) do
     produced =
-      for {string, type} <- calls do
+      for {string, type} <- calls,
+          not is_nil(string) do
+        string = string
         case type do
-          :float -> String.to_float(string)
-          :integer ->
+          "float" ->
+            String.to_float(string)
+          "integer" ->
             string
             |> String.replace(",", "")
             |> String.to_integer

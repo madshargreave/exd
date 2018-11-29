@@ -57,39 +57,67 @@ defmodule Exd.Plugin.Fetch do
       |> Query.select(%{...})
   """
   use Exd.Plugin
+  use GenStage
+
   alias Exd.Plugin.Fetch.Client, as: Client
 
   @default_concurrency 1
   @default_retries 0
   @default_timeout 5000
 
-  defstruct url: nil,
-            params: nil,
-            headers: nil
+  # Client
 
-  @impl true
-  def init(opts \\ []) do
-    client = get_client(opts)
-    {:ok, %{client: client}}
+  def start_link(opts \\ []) do
+    GenStage.start_link(__MODULE__, opts)
   end
 
   @impl true
   def handle_parse({:fetch, url}), do: handle_parse({:fetch, url, []})
   def handle_parse({:fetch, url, opts}) do
-    {:ok, {url, opts}}
+    opts = Keyword.put(opts, :url, url)
+    spec = {__MODULE__, opts}
+    {:ok, spec}
+  end
+
+  # Server
+
+  @impl true
+  def init(opts) do
+    state = for {key, value} <- opts, into: %{}, do: {key, value}
+    {:producer_consumer, state}
   end
 
   @impl true
-  def handle_eval(calls) do
-    client = get_client()
-    urls = for {url, opts} <- calls, do: url
-    produced = Client.fetch(client, urls)
-    {:ok, [produced]}
+  def handle_events(events, _from, state) do
+    events =
+      for record <- events do
+        client = get_client()
+        cond do
+          is_binary(record) ->
+            [result] = Client.fetch(client, [record])
+            result
+          true ->
+            case state do
+              %{url: [url]} ->
+                url = Exd.Interpreter.Select.do_select(record, url).value
+                [result] = Client.fetch(client, [url])
+                value = Map.merge(record.value, %{state.namespace => result})
+                %Exd.Record{record | value: value}
+            end
+        end
+      end
+    {:noreply, events, state}
   end
 
   @impl true
-  def handle_shutdown(state) do
-    {:ok, state}
+  def handle_cancel(_, _from, state) do
+    GenStage.async_info(self(), :terminate)
+    {:noreply, [], state}
+  end
+
+  @impl true
+  def handle_info(:terminate, state) do
+    {:stop, :shutdown, state}
   end
 
   defp get_client(opts \\ []) do

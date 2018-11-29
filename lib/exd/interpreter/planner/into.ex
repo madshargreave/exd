@@ -6,13 +6,10 @@ defmodule Exd.Interpreter.Into do
   @doc """
   Resolves select statement
   """
-  @spec into(Flow.t(), tuple()) :: Flow.t()
-  def into(flow, sink) do
-    sink_opts = [adapter: sink]
-    spec = {Exd.Sink, sink_opts}
-    subscription_opts = []
-    specs = [{spec, subscription_opts}]
-    Flow.through_specs(flow, specs)
+  @spec into(Flow.t(), function()) :: Flow.t()
+  def into(flow, callback) when is_function(callback) do
+    flow
+    |> Flow.each(callback)
   end
 
 end

@@ -30,6 +30,7 @@ defmodule Exd.Interpreter.Planner do
     |> plan_select(query)
     |> plan_flatten(query)
     |> plan_into(query)
+    |> plan_commit
   end
 
   defp plan_from(%Query{from: {namespace, specable, opts}, env: env} = query) do
@@ -62,8 +63,17 @@ defmodule Exd.Interpreter.Planner do
   end
 
   defp plan_into(flow, %Query{into: nil} = _query), do: flow
-  defp plan_into(flow, %Query{into: {namespace, sink}}) do
+  defp plan_into(flow, %Query{into: sink}) do
     Into.into(flow, sink)
+  end
+
+  defp plan_commit(flow) do
+    flow
+    |> Flow.each(fn record ->
+      if is_pid(record.source) do
+        send(record.source, {:commit, record.key, record.meta})
+      end
+    end)
   end
 
   defp plan_resolve(flow) do

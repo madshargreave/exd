@@ -3,6 +3,7 @@ defmodule Exd.Plugin do
   alias Exd.Plugin.String, as: StringPlugin
   alias Exd.Plugin.List, as: ListPlugin
   alias Exd.Plugin.Fetch, as: FetchPlugin
+  alias Exd.Plugin.Interval, as: IntervalPlugin
 
   # A list of standard plugins
   @default_plugins [
@@ -19,6 +20,8 @@ defmodule Exd.Plugin do
     ListPlugin.Range,
     # Fetch
     FetchPlugin,
+    # Streams
+    IntervalPlugin
   ]
 
   @doc """

@@ -4,14 +4,14 @@ defmodule Exd.Codegen.Planner.From do
 
   @functions ~w(range fetch)
 
-  def from(%AST.FromExpr{expr: [%AST.NumberLiteral{} | _rest]} = from) do
+  def plan(%AST.TableExpr{expr: [%AST.NumberLiteral{} | _rest]} = from) do
     name = from.name.value
     from.expr
     |> Enum.map(&%Exd.Record{value: %{name => &1.value}})
-    |> Flow.from_enumerable()
+    |> Flow.from_enumerable(stages: 1, max_demand: 10)
   end
 
-  def from(%AST.FromExpr{
+  def plan(%AST.TableExpr{
     expr: %AST.CallExpr{
       identifier: %AST.Identifier{value: caller},
       arguments: [
@@ -22,11 +22,15 @@ defmodule Exd.Codegen.Planner.From do
   } = from)
     when caller in @functions
   do
-    name = from.name.value
     (start..stop)
     |> Enum.to_list
-    |> Enum.map(&%Exd.Record{value: %{name => &1}})
-    |> Flow.from_enumerable()
+    |> Enum.map(&to_record(from.name, &1))
+    |> Flow.from_enumerable(stages: 1, max_demand: 10)
   end
+
+  defp to_record(nil, value),
+    do: %Exd.Record{value: value}
+  defp to_record(%AST.Identifier{value: name}, value),
+    do: %Exd.Record{value: %{name => value}}
 
 end

@@ -18,14 +18,20 @@ defmodule Exd.Codegen.Planner.SelectTest do
         %AST.SelectExpr{
           columns: [
             %AST.ColumnExpr{
-              name: "name",
+              name: %AST.Identifier{
+                value: "name"
+              },
               expr: %AST.BindingExpr{
                 family: nil,
-                identifier: "first_name"
+                identifier: %AST.Identifier{
+                  value: "first_name"
+                }
               }
             },
             %AST.ColumnExpr{
-              name: "age",
+              name: %AST.Identifier{
+                value: "age"
+              },
               expr: %AST.NumberLiteral{
                 value: 25
               }

@@ -3,7 +3,7 @@ defmodule Exd.Codegen.Planner do
   Plans query
   """
   alias Exd.AST
-  alias Exd.Codegen.Planner.{From, Select}
+  alias Exd.Codegen.Planner.{From, Select, Into}
 
   def plan(%AST.Program{} = program) do
     plan(program.query)
@@ -12,8 +12,9 @@ defmodule Exd.Codegen.Planner do
   def plan(%AST.Query{} = query) do
     flow =
       query.from
-      |> From.from()
-      |> Select.select(query.select)
+      |> From.plan()
+      |> Select.plan(query.select)
+      |> Into.plan(query.select)
   end
 
 end

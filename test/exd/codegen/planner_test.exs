@@ -20,7 +20,7 @@ defmodule Exd.Codegen.PlannerTest do
             select: %AST.SelectExpr{
               columns: [
                 %AST.ColumnExpr{
-                  name: "number",
+                  name: %AST.Identifier{value: "number"},
                   expr: %AST.BindingExpr{
                     family: "numbers",
                     identifier: nil

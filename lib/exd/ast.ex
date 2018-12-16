@@ -15,10 +15,10 @@ defmodule Exd.AST do
 
   defmodule SelectExpr do
     @moduledoc false
-    defstruct [:columns]
+    defstruct [:columns, :into]
   end
 
-  defmodule FromExpr do
+  defmodule TableExpr do
     @moduledoc false
     defstruct [:name, :expr]
   end
@@ -26,6 +26,11 @@ defmodule Exd.AST do
   defmodule ColumnExpr do
     @moduledoc false
     defstruct [:name, :expr]
+  end
+
+  defmodule ColumnRef do
+    @moduledoc false
+    defstruct [:family, :column_name, :all]
   end
 
   defmodule BindingExpr do

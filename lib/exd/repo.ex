@@ -27,7 +27,7 @@ defmodule Exd.Repo do
   """
   def stream(query, opts \\ []) do
     query
-    |> Interpreter.stream
+    |> Exd.Codegen.Planner.plan
   end
 
   @doc """
@@ -35,7 +35,7 @@ defmodule Exd.Repo do
   """
   def run(query, opts \\ []) do
     query
-    |> Interpreter.stream
+    |> Exd.Codegen.Planner.plan
     |> Enum.to_list
   end
 
@@ -59,7 +59,7 @@ defmodule Exd.Repo do
   def start_link(query, opts \\ []) do
     query
     |> stream()
-    |> Flow.start_link
+    # |> Flow.start_link
   end
 
 end

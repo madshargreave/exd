@@ -1,11 +1,12 @@
 defmodule Exd.Codegen.Planner.SelectTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
 
   alias Exd.AST
   alias Exd.Codegen.Planner.Select
 
   describe "select/2" do
-    test "asda" do
+    test "it works with literal expressions" do
+      context = %Exd.Context{}
       flow =
         [
           %Exd.Record{value: %{"first_name" => "mads"}},
@@ -45,8 +46,47 @@ defmodule Exd.Codegen.Planner.SelectTest do
         %{"name" => "john", "age" => 25}
       ] ==
         flow
-        |> Select.select(program)
+        |> Select.plan(program, context)
         |> Enum.to_list
+    end
+
+    test "it works with select all expression" do
+      context = %Exd.Context{}
+      flow =
+        [
+          %Exd.Record{value: %{"first_name" => "mads", "last_name" => "hargreave"}},
+          %Exd.Record{value: %{"first_name" => "jack", "last_name" => "sparrow"}},
+          %Exd.Record{value: %{"first_name" => "john", "last_name" => "doe"}}
+        ]
+        |> Flow.from_enumerable
+
+      program =
+        %AST.SelectExpr{
+          columns: [
+            # %AST.ColumnExpr{
+            #   expr: %AST.ColumnRef{
+            #     all: true,
+            #   },
+            # },
+            %AST.ColumnExpr{
+              name: %AST.Identifier{
+                value: "age"
+              },
+              expr: %AST.NumberLiteral{
+                value: 25
+              }
+            }
+          ]
+        }
+
+      # assert [
+      #   %{"first_name" => "mads", "last_name" => "hargreave", "age" => 25},
+      #   %{"first_name" => "jack", "last_name" => "sparrow", "age" => 25},
+      #   %{"first_name" => "john", "last_name" => "doe", "age" => 25}
+      # ] ==
+      #   flow
+      #   |> Select.plan(program, context)
+      #   |> Enum.to_list
     end
   end
 

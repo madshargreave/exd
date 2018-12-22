@@ -10,7 +10,7 @@ defmodule Exd.AST do
 
   defmodule Query do
     @moduledoc false
-    defstruct [:select, :from]
+    defstruct [:select, :from, :group_by, :window]
   end
 
   defmodule SelectExpr do
@@ -23,9 +23,16 @@ defmodule Exd.AST do
     defstruct [:name, :expr]
   end
 
+  defmodule GroupByExpr do
+    @moduledoc false
+    defstruct [:columns, window: nil]
+  end
+
   defmodule ColumnExpr do
     @moduledoc false
     defstruct [:name, :expr]
+    def name(%__MODULE__{name: nil, expr: %{column_name: name}}), do: name.value
+    def name(%__MODULE__{name: name}), do: name.value
   end
 
   defmodule ColumnRef do

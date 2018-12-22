@@ -1,40 +1,51 @@
 defmodule Exd.Codegen.Planner.Select do
   @moduledoc false
-  alias Exd.AST
+  use GenStage
 
-  def plan(flow, %AST.SelectExpr{} = select) do
-    flow
-    |> Flow.map(fn record ->
+  alias Exd.{AST, Plugin, Record}
+  alias Exd.Codegen.Evaluator
+
+  def plan(flow, %AST.SelectExpr{} = select, context) do
+    {flow, keys} =
       select.columns
-      |> Enum.with_index
-      |> Enum.reduce(%{}, fn {%AST.ColumnExpr{} = column, index}, acc ->
-        value = select_value(column.expr, record)
-        if column.name do
-          Map.put(acc, column.name.value, value)
+      |> Enum.reduce({flow, []}, fn column, {acc, keys} ->
+        column_name = AST.ColumnExpr.name(column)
+        if column_name do
+          {do_plan(acc, column), keys ++ [column_name]}
         else
-          Map.put(acc, "f_#{index}", value)
+          {do_plan(acc, column), keys}
         end
       end)
+
+    keys_with_all = ["all" | keys]
+    flow
+    |> Flow.map(&Map.take(&1.value, keys_with_all))
+    |> Flow.map(fn value ->
+      case value do
+        %{"all" => all} ->
+          value = Map.delete(value, "all")
+          Map.merge(value, all)
+        _ ->
+          value
+      end
     end)
   end
 
-  defp select_value(%AST.ColumnRef{family: nil, all: true} = binding, record),
-    do: record.value
-  defp select_value(%AST.ColumnRef{family: family, all: true} = binding, record),
-    do: Map.get(record.value, family)
-  defp select_value(%AST.BindingExpr{family: nil} = binding, record),
-    do: get_in(record.value, [binding.identifier.value])
-  defp select_value(%AST.BindingExpr{family: family, identifier: nil} = binding, record) when is_binary(family),
-    do: get_in(record.value, [binding.family])
-  defp select_value(%AST.BindingExpr{} = binding, record),
-    do: get_in(record.value, [binding.family, binding.identifier])
-  defp select_value(%AST.NumberLiteral{} = literal, record),
-    do: literal.value
-  defp select_value(%AST.StringLiteral{} = literal, record),
-    do: literal.value
-
-  defp select_value(%AST.CallExpr{} = call, record) do
-    args = for arg <- call.arguments, do: select_value(arg, record)
+  defp do_plan(flow, %AST.ColumnExpr{} = column) do
+    Flow.map(flow, fn record ->
+      case column do
+        %AST.ColumnExpr{name: %AST.Identifier{value: name}} ->
+          Record.from(record, %{
+            name => Evaluator.eval(record.value, column.expr)
+          })
+        %AST.ColumnExpr{name: nil, expr: %AST.ColumnRef{column_name: %AST.Identifier{value: name}}} ->
+          Record.from(record, %{
+            AST.ColumnExpr.name(column) => Evaluator.eval(record.value, column.expr)
+          })
+        _ ->
+          Record.from(record, %{"all" => Evaluator.eval(record.value, column.expr)})
+      end
+    end)
   end
 
 end

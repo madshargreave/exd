@@ -1,17 +1,10 @@
 defmodule Exd do
   @moduledoc """
-  Ecto adapter for Exd library
-
-  ## Example
-
-    config :exd,
-      plugins: [
-        Exd.Plugin.Request,
-        Exd.Plugin.JSON,
-        Exd.Plugin.HTML,
-        Exd.Plugin.XML,
-        Exd.Plugin.RDMS
-      ]
+  Exd is a declarative library for creating concurrent data pipelines
+  using a high-level SQL abstraction
   """
+
+  @typedoc "A record is a single event with its associated metadata"
+  @type record :: Record.t
 
 end

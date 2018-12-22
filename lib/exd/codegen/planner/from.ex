@@ -1,31 +1,32 @@
 defmodule Exd.Codegen.Planner.From do
   @moduledoc false
   alias Exd.AST
+  alias Exd.Codegen.Evaluator
 
   @functions ~w(range fetch)
 
-  def plan(%AST.TableExpr{expr: [%AST.NumberLiteral{} | _rest]} = from) do
-    name = from.name.value
+  def plan(%AST.TableExpr{expr: [%AST.NumberLiteral{} | _rest]} = from, context) do
     from.expr
-    |> Enum.map(&%Exd.Record{value: %{name => &1.value}})
-    |> Flow.from_enumerable(stages: 1, max_demand: 10)
+    |> Enum.map(&%Exd.Record{value: %{from.name.value => &1.value}})
+    |> Flow.from_enumerable(stages: 1)
   end
 
   def plan(%AST.TableExpr{
+    name: name,
     expr: %AST.CallExpr{
       identifier: %AST.Identifier{value: caller},
-      arguments: [
-        %AST.NumberLiteral{value: start},
-        %AST.NumberLiteral{value: stop}
-      ]
+      arguments: arguments
     },
-  } = from)
-    when caller in @functions
+  },
+  context) when caller in @functions
   do
-    (start..stop)
-    |> Enum.to_list
-    |> Enum.map(&to_record(from.name, &1))
-    |> Flow.from_enumerable(stages: 1, max_demand: 10)
+    {:ok, plugin} = Exd.Plugin.find(caller)
+    arguments = Evaluator.eval(%Exd.Record{}, arguments)
+    context = %Exd.Context{arguments: arguments}
+    specs = [{plugin, [context]}]
+
+    Flow.from_specs(specs, stages: 1)
+    |> Flow.map(fn record -> %Exd.Record{record | value: %{name.value => record.value}} end)
   end
 
   defp to_record(nil, value),

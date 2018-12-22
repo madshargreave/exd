@@ -1,4 +1,4 @@
-defmodule Exd.Codegen.PlannerTest do
+defmodule Exd.Plugin.Integer.MultiplyTest do
   use ExUnit.Case
 
   alias Exd.AST
@@ -20,10 +20,16 @@ defmodule Exd.Codegen.PlannerTest do
             select: %AST.SelectExpr{
               columns: [
                 %AST.ColumnExpr{
-                  name: %AST.Identifier{value: "number"},
-                  expr: %AST.BindingExpr{
-                    family: "numbers",
-                    identifier: nil
+                  name: %AST.Identifier{value: "double"},
+                  expr: %AST.CallExpr{
+                    identifier: %AST.Identifier{value: "multiply"},
+                    arguments: [
+                      %AST.BindingExpr{
+                        family: "numbers",
+                        identifier: nil
+                      },
+                      %AST.NumberLiteral{value: 2}
+                    ]
                   }
                 }
               ]
@@ -32,9 +38,9 @@ defmodule Exd.Codegen.PlannerTest do
         }
 
       assert [
-        %{"number" => 1},
-        %{"number" => 2},
-        %{"number" => 3}
+        %{"double" => 2},
+        %{"double" => 4},
+        %{"double" => 6}
       ] ==
         program
         |> Planner.plan

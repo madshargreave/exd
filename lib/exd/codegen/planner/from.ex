@@ -1,13 +1,23 @@
 defmodule Exd.Codegen.Planner.From do
   @moduledoc false
   alias Exd.AST
-  alias Exd.Codegen.Evaluator
+  alias Exd.Codegen.{Planner, Evaluator}
 
   @functions ~w(range fetch)
 
-  def plan(%AST.TableExpr{expr: [%AST.NumberLiteral{} | _rest]} = from, context) do
+  def plan(%AST.TableExpr{expr: [%AST.NumberLiteral{} | _rest]} = from, _, context) do
     from.expr
     |> Enum.map(&%Exd.Record{value: %{from.name.value => &1.value}})
+    |> Flow.from_enumerable(stages: 1)
+  end
+
+  def plan(%AST.TableExpr{expr: %AST.Identifier{} = identifier} = from, ctes, context) when is_list(ctes) do
+    cte = Enum.find(ctes, fn cte -> cte.identifier.value == identifier.value end)
+
+    Planner.plan(cte.expr, context)
+    |> Enum.map(fn record ->
+      %Exd.Record{value: %{from.name.value => record}}
+    end)
     |> Flow.from_enumerable(stages: 1)
   end
 

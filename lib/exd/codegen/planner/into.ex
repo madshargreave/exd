@@ -3,7 +3,8 @@ defmodule Exd.Codegen.Planner.Into do
   alias Exd.AST
 
   def plan(flow, %AST.SelectExpr{into: nil}, context), do: flow
-  def plan(flow, %AST.SelectExpr{into: spec}, context) do
+  def plan(flow, %AST.SelectExpr{into: {module, args}}, context) do
+    spec = {module, context}
     specs = [{spec, []}]
     flow
     |> Flow.through_specs(specs)

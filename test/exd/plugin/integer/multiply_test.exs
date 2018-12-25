@@ -23,7 +23,7 @@ defmodule Exd.Plugin.Integer.MultiplyTest do
                   name: %AST.Identifier{value: "double"},
                   expr: %AST.CallExpr{
                     identifier: %AST.Identifier{value: "multiply"},
-                    arguments: [
+                    params: [
                       %AST.BindingExpr{
                         family: "numbers",
                         identifier: nil

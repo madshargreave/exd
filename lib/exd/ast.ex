@@ -5,12 +5,17 @@ defmodule Exd.AST do
 
   defmodule Program do
     @moduledoc false
-    defstruct [:config, :query]
+    defstruct [:config, :insert, :query]
   end
 
   defmodule Query do
     @moduledoc false
     defstruct [:select, :from, :group_by, :window]
+  end
+
+  defmodule InsertExpr do
+    @moduledoc false
+    defstruct [:into]
   end
 
   defmodule SelectExpr do
@@ -47,7 +52,7 @@ defmodule Exd.AST do
 
   defmodule CallExpr do
     @moduledoc false
-    defstruct [:identifier, :arguments]
+    defstruct [:identifier, :params]
   end
 
   defmodule NumberLiteral do
@@ -61,6 +66,11 @@ defmodule Exd.AST do
   end
 
   defmodule Identifier do
+    @moduledoc false
+    defstruct [:value]
+  end
+
+  defmodule TableIdentifier do
     @moduledoc false
     defstruct [:value]
   end

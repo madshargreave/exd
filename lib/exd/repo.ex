@@ -35,7 +35,7 @@ defmodule Exd.Repo do
   """
   def run(query, opts \\ []) do
     query
-    |> Exd.Codegen.Planner.plan
+    |> Exd.Codegen.Planner.plan(opts)
     |> Enum.to_list
   end
 

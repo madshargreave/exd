@@ -3,7 +3,7 @@ defmodule Exd.Plugin.List.Range do
   Multiply two numbers
   """
   use Exd.Plugin
-  alias Exd.Record
+  alias Exd.{Context, Record}
 
   @impl true
   def name do
@@ -11,7 +11,7 @@ defmodule Exd.Plugin.List.Range do
   end
 
   @impl true
-  def init([min, max]) do
+  def init(%Context{params: [min, max]} = context) do
     state = %{min: min, max: max}
     {:producer, state}
   end

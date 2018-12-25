@@ -1,4 +1,4 @@
-defmodule Exd.Codegen.PlannerTest do
+defmodule Exd.Plugin.List.RangeTest do
   use ExUnit.Case
 
   alias Exd.AST
@@ -6,17 +6,18 @@ defmodule Exd.Codegen.PlannerTest do
 
   describe "plan/1" do
     test "asda" do
-      meta = %{some_data: 123}
       program =
         %AST.Program{
           query: %AST.Query{
             from: %AST.TableExpr{
               name: %AST.Identifier{value: "numbers"},
-              expr: [
-                %AST.NumberLiteral{value: 1},
-                %AST.NumberLiteral{value: 2},
-                %AST.NumberLiteral{value: 3}
-              ]
+              expr: %AST.CallExpr{
+                identifier: %AST.Identifier{value: "range"},
+                params: [
+                  %AST.NumberLiteral{value: 1},
+                  %AST.NumberLiteral{value: 3}
+                ]
+              }
             },
             select: %AST.SelectExpr{
               columns: [
@@ -38,7 +39,7 @@ defmodule Exd.Codegen.PlannerTest do
         %{"number" => 3}
       ] ==
         program
-        |> Planner.plan(meta)
+        |> Planner.plan(hello: 1)
         |> Enum.to_list
     end
   end

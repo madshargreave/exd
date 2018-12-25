@@ -16,7 +16,6 @@ defmodule Exd.Context do
   """
   defstruct [
     env: nil,
-    meta: nil,
-    arguments: nil
+    params: []
   ]
 end

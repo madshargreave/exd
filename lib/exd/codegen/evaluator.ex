@@ -13,9 +13,9 @@ defmodule Exd.Codegen.Evaluator do
     eval_group(call.identifier.value, record)
   end
   def eval(context, %AST.CallExpr{} = call) do
-    arguments = Enum.map(call.arguments, &eval(context, &1))
+    params = Enum.map(call.params, &eval(context, &1))
     {:ok, plugin} = Plugin.find(call.identifier.value)
-    {:ok, event} = plugin.eval(arguments)
+    {:ok, event} = plugin.eval(params)
     event
   end
   def eval(context, exprs) when is_list(exprs),
@@ -41,7 +41,7 @@ defmodule Exd.Codegen.Evaluator do
     :error
   end
 
-  defp eval_group(record, %AST.CallExpr{identifier: %AST.Identifier{value: "sum"}, arguments: [arg]} = call) do
+  defp eval_group(record, %AST.CallExpr{identifier: %AST.Identifier{value: "sum"}, params: [arg]} = call) do
     %{value: value} = WindowStore.get(record.window)
     next_value = value + eval(record.value, arg)
     WindowStore.save(record.window, next_value)

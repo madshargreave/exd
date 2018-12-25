@@ -5,12 +5,20 @@ defmodule Exd.Codegen.Planner do
   alias Exd.AST
   alias Exd.Codegen.Planner.{From, Select, Into, GroupBy}
 
-  def plan(%AST.Program{} = program) do
-    context = %Exd.Context{}
+  def plan(program, meta \\ [])
+  def plan(%AST.Program{} = program, meta) do
+    context =
+      %Exd.Context{
+        env: meta
+      }
     plan(program.query, context)
   end
 
-  def plan(%AST.Query{} = query, context) do
+  def plan(%AST.Query{} = query, meta) do
+    context =
+      %Exd.Context{
+        env: meta
+      }
     flow =
       query.from
       |> From.plan(context)

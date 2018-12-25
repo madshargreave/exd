@@ -15,15 +15,15 @@ defmodule Exd.Codegen.Planner.From do
     name: name,
     expr: %AST.CallExpr{
       identifier: %AST.Identifier{value: caller},
-      arguments: arguments
+      params: params
     },
   },
   context) when caller in @functions
   do
     {:ok, plugin} = Exd.Plugin.find(caller)
-    arguments = Evaluator.eval(%Exd.Record{}, arguments)
-    context = %Exd.Context{arguments: arguments}
-    specs = [{plugin, [context]}]
+    params = Evaluator.eval(%Exd.Record{}, params)
+    context = %Exd.Context{context | params: params}
+    specs = [{plugin, context}]
 
     Flow.from_specs(specs, stages: 1)
     |> Flow.map(fn record -> %Exd.Record{record | value: %{name.value => record.value}} end)

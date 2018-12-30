@@ -11,20 +11,19 @@ defmodule Exd.Codegen.Planner do
       %Exd.Context{
         env: meta
       }
-    plan(program.query, context)
+    flow =
+      program.query.from
+      |> From.plan(program.ctes, context)
+      |> GroupBy.plan(program.query.group_by, context)
+      |> Select.plan(program.query.select, context)
+      |> Into.plan(program.query.select, context)
   end
 
-  def plan(%AST.Query{} = query, meta) do
-    context =
-      %Exd.Context{
-        env: meta
-      }
+  def plan(%AST.Query{} = query, context) do
     flow =
       query.from
       |> From.plan(context)
-      |> GroupBy.plan(query.group_by, context)
       |> Select.plan(query.select, context)
-      |> Into.plan(query.select, context)
   end
 
 end

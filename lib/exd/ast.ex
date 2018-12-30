@@ -5,12 +5,17 @@ defmodule Exd.AST do
 
   defmodule Program do
     @moduledoc false
-    defstruct [:config, :insert, :query]
+    defstruct [:config, :ctes, :insert, :query]
   end
 
   defmodule Query do
     @moduledoc false
     defstruct [:select, :from, :group_by, :window]
+  end
+
+  defmodule CommonTableExpr do
+    @moduledoc false
+    defstruct [:identifier, :expr]
   end
 
   defmodule InsertExpr do

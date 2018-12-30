@@ -12,11 +12,16 @@ defmodule Exd.Codegen.PlannerTest do
           query: %AST.Query{
             from: %AST.TableExpr{
               name: %AST.Identifier{value: "numbers"},
-              expr: [
-                %AST.NumberLiteral{value: 1},
-                %AST.NumberLiteral{value: 2},
-                %AST.NumberLiteral{value: 3}
-              ]
+              expr: %AST.CallExpr{
+                identifier: %AST.Identifier{
+                  value: "unnest"
+                },
+                params: [
+                  %AST.NumberLiteral{value: 1},
+                  %AST.NumberLiteral{value: 2},
+                  %AST.NumberLiteral{value: 3}
+                ]
+              }
             },
             select: %AST.SelectExpr{
               columns: [

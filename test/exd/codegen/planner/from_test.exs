@@ -18,12 +18,18 @@ defmodule Exd.Codegen.Planner.FromTest do
         }
 
       assert [
-        %Exd.Record{value: %{"numbers" => 1}},
-        %Exd.Record{value: %{"numbers" => 2}},
-        %Exd.Record{value: %{"numbers" => 3}}
+        %Exd.Record{
+          value: %{
+            "numbers" => [
+              1,
+              2,
+              3
+            ]
+          }
+        }
       ] ==
         from
-        |> From.plan(context)
+        |> From.plan([], context)
         |> Enum.to_list
     end
 

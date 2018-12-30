@@ -19,10 +19,10 @@ defmodule Exd.Codegen.Planner do
       |> Into.plan(program.query.select, context)
   end
 
-  def plan(%AST.Query{} = query, context) do
+  def plan(%AST.Query{} = query, ctes, context) do
     flow =
       query.from
-      |> From.plan(context)
+      |> From.plan(ctes, context)
       |> Select.plan(query.select, context)
   end
 

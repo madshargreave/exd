@@ -32,8 +32,14 @@ defmodule Exd.Codegen.Planner.Select do
   end
 
   defp do_plan(flow, %AST.ColumnExpr{} = column) do
-    Flow.map(flow, fn record ->
+    Flow.flat_map(flow, fn record ->
       case column do
+        %AST.ColumnExpr{name: name, expr: %AST.CallExpr{identifier: %AST.Identifier{value: "unnest"}}} ->
+          for value <- Evaluator.eval(record.value, column.expr) do
+            Record.from(record, %{
+              name.value => value
+            })
+          end
         %AST.ColumnExpr{name: %AST.Identifier{value: name}} ->
           Record.from(record, %{
             name => Evaluator.eval(record.value, column.expr)
@@ -45,7 +51,11 @@ defmodule Exd.Codegen.Planner.Select do
         _ ->
           Record.from(record, %{"all" => Evaluator.eval(record.value, column.expr)})
       end
+      |> wrap_if_not_list
     end)
   end
+
+  defp wrap_if_not_list(records) when is_list(records), do: records
+  defp wrap_if_not_list(record), do: [record]
 
 end

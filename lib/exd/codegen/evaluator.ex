@@ -7,6 +7,10 @@ defmodule Exd.Codegen.Evaluator do
 
   @analytical_functions ~w(sum avg count)
 
+  def eval(record,  %AST.CallExpr{identifier: %AST.Identifier{value: "unnest"}} = call) do
+    [source_expr] = call.params
+    eval(record, source_expr)
+  end
   def eval(record,  %AST.CallExpr{identifier: %AST.Identifier{value: name}} = call)
     when name in @analytical_functions
   do
@@ -24,6 +28,8 @@ defmodule Exd.Codegen.Evaluator do
     do: context
   def eval(context, %AST.ColumnRef{family: family, all: true} = binding),
     do: Map.get(context, family.value)
+  def eval(context, %AST.ColumnRef{family: nil, column_name: column_name, all: false} = binding),
+    do: Map.get(context, column_name.value)
   def eval(context, %AST.ColumnRef{family: family, column_name: name, all: false} = binding),
     do: get_in(context, [family.value, name.value])
   def eval(context, %AST.BindingExpr{family: nil} = binding),

@@ -50,24 +50,18 @@ defmodule Exd.Codegen.Planner.SelectTest do
         |> Enum.to_list
     end
 
-    test "it works with select all expression" do
+    test "it works with unnesting" do
       context = %Exd.Context{}
       flow =
         [
-          %Exd.Record{value: %{"first_name" => "mads", "last_name" => "hargreave"}},
-          %Exd.Record{value: %{"first_name" => "jack", "last_name" => "sparrow"}},
-          %Exd.Record{value: %{"first_name" => "john", "last_name" => "doe"}}
+          %Exd.Record{value: %{"numbers" => [1, 2, 3]}},
+          %Exd.Record{value: %{"numbers" => [4, 5]}}
         ]
         |> Flow.from_enumerable
 
       program =
         %AST.SelectExpr{
           columns: [
-            # %AST.ColumnExpr{
-            #   expr: %AST.ColumnRef{
-            #     all: true,
-            #   },
-            # },
             %AST.ColumnExpr{
               name: %AST.Identifier{
                 value: "age"
@@ -75,18 +69,37 @@ defmodule Exd.Codegen.Planner.SelectTest do
               expr: %AST.NumberLiteral{
                 value: 25
               }
+            },
+            %AST.ColumnExpr{
+              name: %AST.Identifier{
+                value: "number"
+              },
+              expr: %AST.CallExpr{
+                identifier: %AST.Identifier{
+                  value: "unnest"
+                },
+                params: [
+                  %AST.BindingExpr{
+                    identifier: %AST.Identifier{
+                      value: "numbers"
+                    }
+                  }
+                ]
+              },
             }
           ]
         }
 
-      # assert [
-      #   %{"first_name" => "mads", "last_name" => "hargreave", "age" => 25},
-      #   %{"first_name" => "jack", "last_name" => "sparrow", "age" => 25},
-      #   %{"first_name" => "john", "last_name" => "doe", "age" => 25}
-      # ] ==
-      #   flow
-      #   |> Select.plan(program, context)
-      #   |> Enum.to_list
+      assert [
+        %{"number" => 1, "age" => 25},
+        %{"number" => 2, "age" => 25},
+        %{"number" => 3, "age" => 25},
+        %{"number" => 4, "age" => 25},
+        %{"number" => 5, "age" => 25},
+      ] ==
+        flow
+        |> Select.plan(program, context)
+        |> Enum.to_list
     end
   end
 

@@ -12,9 +12,12 @@ defmodule Exd.Codegen.Planner.From do
   end
 
   def plan(%AST.TableExpr{expr: %AST.Identifier{} = identifier} = from, ctes, context) when is_list(ctes) do
-    cte = Enum.find(ctes, fn cte -> cte.identifier.value == identifier.value end)
+    cte =
+      Enum.find(ctes, fn cte ->
+        cte.identifier.value == identifier.value
+      end)
 
-    Planner.plan(cte.expr, context)
+    Planner.plan(cte.expr, ctes, context)
     |> Enum.map(fn record ->
       %Exd.Record{value: %{from.name.value => record}}
     end)

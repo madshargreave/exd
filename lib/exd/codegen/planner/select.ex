@@ -9,9 +9,9 @@ defmodule Exd.Codegen.Planner.Select do
     {flow, keys} =
       select.columns
       |> Enum.reduce({flow, []}, fn column, {acc, keys} ->
-        column_name = AST.ColumnExpr.name(column)
-        if column_name do
-          {do_plan(acc, column), keys ++ [column_name]}
+        column_names = AST.ColumnExpr.names(column)
+        if length(column_names) > 0 do
+          {do_plan(acc, column), keys ++ column_names}
         else
           {do_plan(acc, column), keys}
         end
@@ -34,19 +34,28 @@ defmodule Exd.Codegen.Planner.Select do
   defp do_plan(flow, %AST.ColumnExpr{} = column) do
     Flow.flat_map(flow, fn record ->
       case column do
-        %AST.ColumnExpr{name: name, expr: %AST.CallExpr{identifier: %AST.Identifier{value: "unnest"}}} ->
-          for value <- Evaluator.eval(record.value, column.expr) do
-            Record.from(record, %{
-              name.value => value
-            })
-          end
-        %AST.ColumnExpr{name: %AST.Identifier{value: name}} ->
+        %AST.ColumnExpr{names: names, expr: %AST.CallExpr{identifier: %AST.Identifier{value: "unnest"}}} = column ->
+          names = AST.ColumnExpr.names(column)
+          record.value
+          |> Evaluator.eval(column.expr)
+          |> Enum.zip
+          |> Enum.map(fn values ->
+            values
+            |> Tuple.to_list
+            |> Enum.with_index
+            |> Enum.reduce(%Record{}, fn {value, index}, acc ->
+              Record.from(acc, %{
+                Enum.at(names, index) => value
+              })
+            end)
+          end)
+        %AST.ColumnExpr{names: [%AST.Identifier{value: name}]} ->
           Record.from(record, %{
             name => Evaluator.eval(record.value, column.expr)
           })
-        %AST.ColumnExpr{name: nil, expr: %AST.ColumnRef{column_name: %AST.Identifier{value: name}}} ->
+        %AST.ColumnExpr{names: [], expr: %AST.ColumnRef{column_name: %AST.Identifier{value: name}}} ->
           Record.from(record, %{
-            AST.ColumnExpr.name(column) => Evaluator.eval(record.value, column.expr)
+            name => Evaluator.eval(record.value, column.expr)
           })
         _ ->
           Record.from(record, %{"all" => Evaluator.eval(record.value, column.expr)})

@@ -8,8 +8,9 @@ defmodule Exd.Codegen.Evaluator do
   @analytical_functions ~w(sum avg count)
 
   def eval(record,  %AST.CallExpr{identifier: %AST.Identifier{value: "unnest"}} = call) do
-    [source_expr] = call.params
-    eval(record, source_expr)
+    for source_expr <- call.params do
+      eval(record, source_expr)
+    end
   end
   def eval(record,  %AST.CallExpr{identifier: %AST.Identifier{value: name}} = call)
     when name in @analytical_functions

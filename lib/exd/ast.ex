@@ -40,9 +40,9 @@ defmodule Exd.AST do
 
   defmodule ColumnExpr do
     @moduledoc false
-    defstruct [:name, :expr]
-    def name(%__MODULE__{name: nil, expr: %{column_name: name}}), do: name.value
-    def name(%__MODULE__{name: name}), do: name.value
+    defstruct [:names, :expr]
+    def names(%__MODULE__{names: [], expr: %{column_name: name}}), do: [name.value]
+    def names(%__MODULE__{names: names}), do: for name <- names, do: name.value
   end
 
   defmodule ColumnRef do

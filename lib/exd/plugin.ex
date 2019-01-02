@@ -3,6 +3,7 @@ defmodule Exd.Plugin do
   Defines a UDF plugin
   """
   alias Exd.Record
+  alias Exd.UDF.String, as: StringPlugin
   alias Exd.UDF.Integer, as: IntegerPlugin
   alias Exd.UDF.Time, as: TimePlugin
   alias Exd.Plugin.String, as: StringPlugin
@@ -28,6 +29,8 @@ defmodule Exd.Plugin do
     # Time
     TimePlugin.CurrentTimestamp
   ]
+
+  @default_udfs Exd.UDF.default
 
   @doc """
   Invoked when the server is started for stateful plugins
@@ -76,7 +79,7 @@ defmodule Exd.Plugin do
   """
   @spec find(binary | term) :: {:ok, term} | {:error, :not_found}
   def find(name) do
-    loaded_plugins = @default_plugins ++ Application.get_env(:exd, :plugins, [])
+    loaded_plugins = @default_plugins ++ @default_udfs ++ Application.get_env(:exd, :plugins, [])
     case Enum.find(loaded_plugins, fn module -> "#{module.name()}" == "#{name}" end) do
       nil -> {:error, :not_found}
       module -> {:ok, module}

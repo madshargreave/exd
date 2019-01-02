@@ -29,7 +29,7 @@ defmodule Exd.UDF do
   def default do
     [
       UDF.Integer.default(),
-      UDF.List.default()
+      UDF.String.default()
     ]
     |> Enum.concat()
   end

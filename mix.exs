@@ -4,7 +4,7 @@ defmodule Exd.MixProject do
   def project do
     [
       app: :exd,
-      version: "0.1.28",
+      version: "0.1.30",
       elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env),
       description: description(),
@@ -31,6 +31,7 @@ defmodule Exd.MixProject do
     [
       {:flow, "~> 0.14"},
       {:atomic_map, "~> 0.8"},
+      {:poison, "~> 3.1"},
       {:mix_test_watch, "~> 0.8", only: :dev, runtime: false},
       {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false},
       {:mustache, "~> 0.3.0"},

@@ -3,7 +3,7 @@ defmodule Exd.Codegen.Planner.From do
   alias Exd.AST
   alias Exd.Codegen.{Planner, Evaluator}
 
-  @functions ~w(range fetch)
+  @functions ~w(range fetch table)
 
   def plan(%AST.TableExpr{expr: [%AST.NumberLiteral{} | _rest]} = from, _, context) do
     values = for literal <- from.expr, do: Evaluator.eval(%Exd.Record{}, literal)
@@ -46,13 +46,15 @@ defmodule Exd.Codegen.Planner.From do
       identifier: %AST.Identifier{value: caller},
       params: params
     },
-  },
+  } = table_expr,
   _,
   context) when caller in @functions
   do
     {:ok, plugin} = Exd.Plugin.find(caller)
     params = Evaluator.eval(%Exd.Record{}, params)
-    context = %Exd.Context{context | params: params}
+
+    expr = %AST.Query{select: %AST.SelectExpr{columns: []}, from: table_expr}
+    context = %Exd.Context{context | expr: expr, params: params}
     specs = [{plugin, context}]
 
     Flow.from_specs(specs, stages: 1)

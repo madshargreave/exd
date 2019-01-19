@@ -19,7 +19,7 @@ defmodule Exd.Record do
     }
   end
 
-  def from(key, value) when is_atom(key) do
+  def from(key, value) when not is_map(key) do
     %__MODULE__{
       key: key,
       value: value

@@ -9,7 +9,7 @@ defmodule Exd.AST do
       quote bind_quoted: [fields: fields] do
         @moduledoc false
         defstruct fields
-        @derive {Poison.Encoder, only: fields}
+        @derive {Jason.Encoder, only: fields}
         @type t :: %__MODULE__{}
       end
     end

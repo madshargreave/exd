@@ -8,7 +8,7 @@ defmodule Exd.Codegen.Planner.From do
   def plan(%AST.TableExpr{expr: [%AST.NumberLiteral{} | _rest]} = from, _, context) do
     values = for literal <- from.expr, do: Evaluator.eval(%Exd.Record{}, literal)
     record = %Exd.Record{value: %{from.name.value => values}}
-    Flow.from_enumerable([record], stages: 1)
+    Flow.from_enumerable([record], stages: 1, max_demand: 1)
   end
 
   def plan(%AST.TableExpr{expr: %AST.Identifier{} = identifier} = from, ctes, context) when is_list(ctes) do
@@ -21,7 +21,7 @@ defmodule Exd.Codegen.Planner.From do
     |> Enum.map(fn record ->
       %Exd.Record{value: %{from.name.value => record}}
     end)
-    |> Flow.from_enumerable(stages: 1)
+    |> Flow.from_enumerable(stages: 1, max_demand: 1)
   end
 
   def plan(%AST.TableExpr{
@@ -37,7 +37,7 @@ defmodule Exd.Codegen.Planner.From do
         value = Evaluator.eval(%Exd.Record{}, literal)
         %Exd.Record{value: %{name.value => value}}
       end
-    Flow.from_enumerable(records, stages: 1)
+    Flow.from_enumerable(records, stages: 1, max_demand: 1)
   end
 
   def plan(%AST.TableExpr{

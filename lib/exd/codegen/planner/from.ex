@@ -57,7 +57,7 @@ defmodule Exd.Codegen.Planner.From do
     context = %Exd.Context{context | expr: expr, params: params}
     specs = [{plugin, context}]
 
-    Flow.from_specs(specs, stages: 1)
+    Flow.from_specs(specs, stages: 1, max_demand: 1)
     |> Flow.map(fn record -> %Exd.Record{record | value: %{name.value => record.value}} end)
   end
 

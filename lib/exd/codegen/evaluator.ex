@@ -25,6 +25,8 @@ defmodule Exd.Codegen.Evaluator do
   end
   def eval(context, exprs) when is_list(exprs),
     do: for expr <- exprs, do: eval(context, expr)
+  def eval(context, %AST.KeywordListExpr{pairs: pairs}),
+    do: for %AST.KeywordListPair{key: key, value: value} <- pairs, into: [], do: {key.value, eval(context, value)}
   def eval(context, %AST.ColumnRef{family: nil, all: true} = binding),
     do: context
   def eval(context, %AST.ColumnRef{family: family, all: true} = binding),

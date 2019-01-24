@@ -81,6 +81,16 @@ defmodule Exd.AST do
     use Node, [:operator, :left, :right]
   end
 
+  defmodule KeywordListExpr do
+    @moduledoc false
+    use Node, [:pairs]
+  end
+
+  defmodule KeywordListPair do
+    @moduledoc false
+    use Node, [:key, :value]
+  end
+
   defmodule Operator do
     @moduledoc false
     use Node, [:value]
